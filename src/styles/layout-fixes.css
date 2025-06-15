@@ -1,0 +1,226 @@
+/* Layout Fixes for Sidebar and Main Content Overlapping Issues */
+
+/* Root container fixes */
+.layout-container {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: hsl(var(--background));
+}
+
+/* Sidebar positioning and z-index management */
+.sidebar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 50;
+  transition: transform 300ms ease-in-out, width 300ms ease-in-out;
+  will-change: transform, width;
+}
+
+/* Mobile sidebar overlay */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  transition: opacity 300ms ease-in-out;
+}
+
+/* Sidebar width states */
+.sidebar-expanded {
+  width: 16rem; /* 256px */
+  min-width: 16rem;
+  max-width: 16rem;
+}
+
+.sidebar-collapsed {
+  width: 5rem; /* 80px */
+  min-width: 5rem;
+  max-width: 5rem;
+}
+
+/* Mobile sidebar transforms */
+.sidebar-mobile-hidden {
+  transform: translateX(-100%);
+}
+
+.sidebar-mobile-visible {
+  transform: translateX(0);
+}
+
+/* Main content container */
+.main-content-container {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 300ms ease-in-out, opacity 300ms ease-in-out;
+  min-width: 0; /* Prevent flex overflow */
+}
+
+/* Main content margin states */
+.main-content-mobile {
+  margin-left: 0;
+}
+
+.main-content-expanded {
+  margin-left: 16rem; /* 256px */
+}
+
+.main-content-collapsed {
+  margin-left: 5rem; /* 80px */
+}
+
+/* Navbar positioning */
+.navbar-container {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: hsla(var(--background), 0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid hsl(var(--border));
+  transition: background-color 300ms ease-in-out;
+}
+
+/* Main content area */
+.main-content-area {
+  flex: 1;
+  overflow-x: auto;
+  padding: 1.5rem 1rem;
+  max-width: 100%;
+}
+
+/* Content wrapper with max-width */
+.content-wrapper {
+  margin: 0 auto;
+  max-width: 80rem; /* 1280px */
+  width: 100%;
+}
+
+/* Responsive breakpoints */
+@media (min-width: 768px) {
+  .main-content-area {
+    padding: 2rem 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main-content-area {
+    padding: 2rem;
+  }
+}
+
+/* Tablet-specific adjustments */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .tablet-optimized .main-content-expanded {
+    margin-left: 5rem; /* Use collapsed width on tablets */
+  }
+  
+  .tablet-optimized .sidebar-expanded {
+    width: 5rem;
+    min-width: 5rem;
+    max-width: 5rem;
+  }
+}
+
+/* Prevent layout shift during transitions */
+.layout-stable {
+  contain: layout style;
+}
+
+/* Scrollbar improvements */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground)) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--muted-foreground));
+  border-radius: 3px;
+  opacity: 0.5;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--foreground));
+  opacity: 0.8;
+}
+
+/* High DPI optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .sidebar-container {
+    border-right: 0.5px solid hsl(var(--border));
+  }
+}
+
+/* Animation performance optimizations */
+.sidebar-container,
+.main-content-container {
+  transform: translateZ(0); /* Force hardware acceleration */
+  backface-visibility: hidden;
+}
+
+/* Focus management for accessibility */
+.sidebar-container:focus-within {
+  z-index: 51;
+}
+
+/* Print styles */
+@media print {
+  .sidebar-container {
+    display: none;
+  }
+  
+  .main-content-container {
+    margin-left: 0 !important;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-container,
+  .main-content-container,
+  .navbar-container {
+    transition: none;
+  }
+}
+
+/* Dark mode specific adjustments */
+.dark .sidebar-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.dark .navbar-container {
+  background: hsla(var(--background), 0.9);
+}
+
+/* Emergency fallback for very small screens */
+@media (max-width: 320px) {
+  .main-content-area {
+    padding: 1rem 0.5rem;
+  }
+  
+  .sidebar-expanded {
+    width: 100vw;
+    min-width: 100vw;
+    max-width: 100vw;
+  }
+}
+
+/* Landscape mobile adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
+  .main-content-area {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+}

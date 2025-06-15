@@ -1,0 +1,870 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/components/ui/use-toast';
+import {
+  AlertCircle,
+  BarChart3,
+  Building2,
+  Clock,
+  Download,
+  FileCheck,
+  Mail,
+  MailCheck,
+  MailOpen,
+  Play,
+  Users,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  Search,
+  X,
+} from 'lucide-react';
+import apiClient from '@/services/api';
+import { useAuth } from '@/context/AuthContext';
+import { isAdmin } from '@/utils/adminPermissions';
+
+// Define types
+type Employee = {
+  id: number | string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone?: string;
+  position?: string;
+  department_id?: string;
+  location_id?: string;
+};
+
+type Screening = {
+  id: number | string;
+  candidate?: string; // For backward compatibility
+  employee?: Employee;
+  position?: string;
+  status: string;
+  created: string;
+  updated?: string;
+  completedAt?: string;
+  scheduledFor?: string;
+  email?: string; // For backward compatibility
+  emailStatus?: string;
+  score?: number;
+  avatarUrl?: string;
+  locationId?: string;
+  departmentId?: string;
+  source?: string;
+  createdBy?: string | number;
+  assignedTo?: string | number;
+  callid?: string;
+  userid?: string;
+  joinurl?: string;
+  job_id?: number;
+};
+
+// Mock department data
+const departments = [
+  { id: 'dept-eng', name: 'Engineering' },
+  { id: 'dept-sales', name: 'Sales' },
+  { id: 'dept-hr', name: 'HR' },
+  { id: 'dept-mkt', name: 'Marketing' },
+];
+
+// Helper function to get department by ID
+const getDepartmentById = (id?: string) => {
+  return departments.find(dept => dept.id === id);
+};
+
+// Will be replaced with API data
+const initialScreenings: Screening[] = [
+  {
+    id: 1,
+    candidate: 'Jordan Lee',
+    position: 'Senior Software Engineer',
+    status: 'pending',
+    created: '2023-11-01',
+    updated: '2023-11-01',
+    emailStatus: 'not_sent',
+    avatarUrl: 'https://randomuser.me/api/portraits/men/1.jpg',
+    locationId: 'loc-101',
+    departmentId: 'dept-eng',
+    source: 'linkedin',
+    callid: 'call-1',
+    userid: 'user-1',
+    joinurl: 'https://example.com/interview/1',
+    job_id: 101,
+    assignedTo: 'user-11',
+    position: 'Senior Software Engineer',
+    status: 'pending',
+    created: '2025-04-22T14:30:00',
+    email: 'jordan.lee@example.com',
+    emailStatus: 'not_sent', // 'sent', 'not_sent', 'opened'
+    scheduledFor: null,
+    completedAt: null,
+    score: null,
+    avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-1',
+    departmentId: 'dept-1',
+    source: 'LinkedIn',
+    assignedTo: 'user-11',
+  },
+  {
+    id: 2,
+    candidate: 'Taylor Smith',
+    position: 'Frontend Developer',
+    status: 'scheduled',
+    created: '2025-04-23T10:15:00',
+    email: 'taylor.smith@example.com',
+    scheduledFor: '2025-04-27T11:00:00',
+    avatarUrl: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-1', // Miami Headquarters
+    departmentId: 'dept-1', // Marketing (Recruitment)
+    source: 'Indeed',
+    assignedTo: 'user-20', // Jordan Lee
+  },
+  {
+    id: 3,
+    candidate: 'Morgan Chen',
+    position: 'Data Scientist',
+    status: 'completed',
+    created: '2025-04-20T09:45:00',
+    completedAt: '2025-04-21T15:30:00',
+    score: 87,
+    email: 'morgan.chen@example.com',
+    avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-2', // New York Office
+    departmentId: 'dept-3', // Marketing (Recruitment)
+    source: 'Referral',
+    assignedTo: 'user-22', // Alex Morgan
+  },
+  {
+    id: 4,
+    candidate: 'Casey Wilson',
+    position: 'UX Designer',
+    status: 'completed',
+    created: '2025-04-18T14:20:00',
+    completedAt: '2025-04-19T11:10:00',
+    score: 92,
+    email: 'casey.wilson@example.com',
+    avatarUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-3', // San Francisco Branch
+    departmentId: 'dept-5', // Marketing (Recruitment)
+    source: 'Dribbble',
+    assignedTo: 'user-24', // Morgan Chen
+  },
+  {
+    id: 5,
+    candidate: 'Robin Taylor',
+    position: 'Product Manager',
+    status: 'scheduled',
+    created: '2025-04-21T11:30:00',
+    scheduledFor: '2025-04-28T14:00:00',
+    email: 'robin.taylor@example.com',
+    avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-3', // San Francisco Branch
+    departmentId: 'dept-6', // Sales
+    source: 'LinkedIn',
+    assignedTo: 'user-25', // Jordan Taylor
+  },
+  {
+    id: 6,
+    candidate: 'Alex Johnson',
+    position: 'Backend Developer',
+    status: 'pending',
+    created: '2025-04-24T09:15:00',
+    email: 'alex.johnson@example.com',
+    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-4', // Chicago Office
+    departmentId: 'dept-7', // Marketing (Recruitment)
+    source: 'Indeed',
+    assignedTo: 'user-26', // Taylor Reed
+  },
+  {
+    id: 7,
+    candidate: 'Jamie Garcia',
+    position: 'Mobile Developer',
+    status: 'completed',
+    created: '2025-04-17T13:45:00',
+    completedAt: '2025-04-18T16:20:00',
+    score: 89,
+    email: 'jamie.garcia@example.com',
+    avatarUrl: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-4', // Chicago Office
+    departmentId: 'dept-8', // Sales
+    source: 'Referral',
+    assignedTo: 'user-27', // Drew Garcia
+  },
+  {
+    id: 8,
+    candidate: 'Riley Martinez',
+    position: 'Marketing Specialist',
+    status: 'scheduled',
+    created: '2025-04-22T15:30:00',
+    scheduledFor: '2025-04-29T10:00:00',
+    email: 'riley.martinez@example.com',
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-1', // Miami Headquarters
+    departmentId: 'dept-1', // Marketing (Recruitment)
+    source: 'Company Website',
+    assignedTo: 'user-11', // Sarah Chen
+  }
+];
+
+const ScreeningsPage: React.FC = () => {
+  const { toast } = useToast();
+  
+  // User context and state
+  const [user, setUser] = useState<any>({ role: 'admin' }); // Mock user data, replace with actual user context
+  
+  // State for API data
+  const [screenings, setScreenings] = useState<Screening[]>(initialScreenings);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [filteredScreenings, setFilteredScreenings] = useState<Screening[]>([]);
+  
+  // State for filters
+  const [activeTab, setActiveTab] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [positionFilter, setPositionFilter] = useState('all');
+  const [locationFilter, setLocationFilter] = useState('all');
+  const [departmentFilter, setDepartmentFilter] = useState('all');
+  const [sourceFilter, setSourceFilter] = useState('all');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [sortOrder, setSortOrder] = useState<'date' | 'name'>('date');
+  
+  // State for UI
+  const [showDashboard, setShowDashboard] = useState(false);
+  const [isScreeningDialogOpen, setIsScreeningDialogOpen] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
+
+  // Fetch screenings data from API
+  useEffect(() => {
+    const fetchScreenings = async () => {
+      setLoading(true);
+      try {
+        // Make API call to fetch screenings with employee details
+        const response = await apiClient.get('/employee-interview-screenings/with-employee/all', {
+          params: {
+            page,
+            limit,
+            // Add filters if needed
+            status: activeTab !== 'all' ? activeTab : undefined,
+            search: searchTerm || undefined,
+            // Possibly add position, department, location filters
+          }
+        });
+
+        // Update screenings state
+        const data = response.data;
+        setScreenings(data.items || []);
+        setTotalItems(data.total || 0);
+        setTotalPages(data.pages || 1);
+        
+        // Apply filters directly after fetching
+        setFilteredScreenings(filterScreenings());
+
+      } catch (error) {
+        console.error('Failed to fetch screenings:', error);
+        toast({
+          title: "Error fetching screenings",
+          description: "Failed to load screenings data. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Failed to fetch screenings:', error);
+      toast({
+        title: "Error fetching screenings",
+        description: "Failed to load screenings data. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Define helper functions for filtering and sorting screenings
+  const filterScreenings = useMemo(() => {
+    return (screenings: Screening[], status: string, search: string) => {
+      let roleFilteredScreenings = screenings;
+      
+      if (user?.role === 'department_head') {
+        roleFilteredScreenings = screenings.filter(s => s.departmentId === user.departmentId);
+      } else if (user?.role === 'hiring_manager') {
+        roleFilteredScreenings = screenings.filter(s => s.assignedTo === user.id);
+      } else if (user?.role === 'recruiter') {
+        roleFilteredScreenings = screenings.filter(s => s.createdBy === user.id);
+      }
+      
+      let filtered = roleFilteredScreenings;
+      
+      if (status !== 'all') {
+        filtered = filtered.filter(s => s.status === status);
+      }
+      
+      if (search && search.trim() !== '') {
+        const searchLower = search.toLowerCase();
+        filtered = filtered.filter(s => {
+          const candidateName = s.employee ? 
+            `${s.employee.first_name} ${s.employee.last_name}`.toLowerCase() :
+            (s.candidate || '').toLowerCase();
+          const email = s.employee ? s.employee.email.toLowerCase() : (s.email || '').toLowerCase();
+          const position = (s.position || '').toLowerCase();
+          
+          return candidateName.includes(searchLower) || 
+                 email.includes(searchLower) || 
+                 position.includes(searchLower);
+        });
+      }
+      
+      if (positionFilter !== 'all') {
+        filtered = filtered.filter(s => s.position === positionFilter);
+      }
+      
+      if (locationFilter !== 'all') {
+        filtered = filtered.filter(s => s.locationId === locationFilter);
+      }
+      
+      if (departmentFilter !== 'all') {
+        filtered = filtered.filter(s => s.departmentId === departmentFilter);
+      }
+      
+      if (sourceFilter !== 'all') {
+        filtered = filtered.filter(s => s.source === sourceFilter);
+      }
+      
+      return filtered;
+    };
+  }, [user, positionFilter, locationFilter, departmentFilter, sourceFilter]);
+
+  // Effect hook to fetch screenings on mount and when filters change
+  useEffect(() => {
+    fetchScreenings(page, limit, activeTab, searchTerm);
+  }, [page, limit, activeTab, searchTerm]);
+
+  // Effect hook to apply filtering whenever relevant state changes
+  useEffect(() => {
+    setFilteredScreenings(filterScreenings(screenings, activeTab, searchTerm));
+  }, [screenings, activeTab, searchTerm, filterScreenings]);
+        </Button>
+      );
+    case 'pending':
+      return (
+        <Button
+          size="sm"
+          variant="outline"
+          className="text-amber-600 hover:text-amber-700"
+          disabled
+        >
+          <AlertCircle className="h-3 w-3 mr-1" /> Pending
+        </Button>
+      );
+    default:
+      return null;
+  }
+};
+
+// ... (rest of the code remains the same)
+
+// Pagination
+const renderPagination = () => {
+  return (
+    <div className="flex items-center justify-between mt-4">
+      <div className="text-sm text-muted-foreground">
+        Showing {screenings.length} of {totalItems} screenings
+      </div>
+      <div className="flex space-x-2">
+        <Button 
+          variant="outline" 
+          size="sm"
+          disabled={page <= 1 || loading}
+          onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+        >
+          Previous
+        </Button>
+        <Button
+          variant="outline" 
+          size="sm"
+          disabled={page >= totalPages || loading}
+          onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
+        >
+          Next
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+// ... (rest of the code remains the same)
+
+// Screening Dialog
+{isScreeningDialogOpen && selectedCandidate && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="bg-white p-6 rounded-lg w-full max-w-md">
+      <h3 className="text-lg font-medium mb-4">Screening for {selectedCandidate.name || 'Candidate'}</h3>
+      <div className="space-y-4">
+        {/* Screening dialog content would go here */}
+        <p>Screening details and actions</p>
+      </div>
+      <div className="mt-6 flex justify-end space-x-2">
+        <Button variant="outline" onClick={() => setIsScreeningDialogOpen(false)}>Cancel</Button>
+        <Button onClick={() => setIsScreeningDialogOpen(false)}>Confirm</Button>
+      </div>
+    </div>
+  </div>
+)}
+
+// ... (rest of the code remains the same)
+  // Helper functions for status badges
+  const getStatusBadge = (status: string, scheduledFor?: string | null) => {
+    switch (status) {
+      case 'pending':
+        return <Badge className="bg-amber-100 text-amber-800"><AlertCircle className="h-3 w-3 mr-1" /> Pending</Badge>;
+      case 'scheduled':
+        return (
+          <div className="flex flex-col">
+            <Badge className="bg-blue-100 text-blue-800 mb-1"><Clock className="h-3 w-3 mr-1" /> Scheduled</Badge>
+            {scheduledFor && (
+              <span className="text-xs text-muted-foreground">
+                {new Date(scheduledFor).toLocaleDateString()}
+              </span>
+            )}
+          </div>
+        );
+      case 'completed':
+        return <Badge className="bg-green-100 text-green-800"><FileCheck className="h-3 w-3 mr-1" /> Completed</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+  
+  const getEmailStatusBadge = (status: string) => {
+    switch (status) {
+      case 'not_sent':
+        return <Badge className="bg-gray-100 text-gray-800"><Mail className="h-3 w-3 mr-1" /> Not Sent</Badge>;
+      case 'sent':
+        return <Badge className="bg-blue-100 text-blue-800"><MailCheck className="h-3 w-3 mr-1" /> Sent</Badge>;
+      case 'opened':
+        return <Badge className="bg-green-100 text-green-800"><MailOpen className="h-3 w-3 mr-1" /> Opened</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  // Action handlers
+  const handleViewResults = (screening: Screening) => {
+    setSelectedCandidate(screening);
+    setIsScreeningDialogOpen(true);
+  };
+  
+  const handleStartScreening = (screening: Screening) => {
+    // Navigate to video call URL or open in new tab
+    if (screening.joinurl) {
+      window.open(screening.joinurl, '_blank');
+    } else {
+      toast({
+        title: "Error",
+        description: "No join URL available for this screening.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Get action button based on screening status
+  const getActionButton = (screening: Screening) => {
+    switch (screening.status) {
+      case 'completed':
+        return (
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => handleViewResults(screening)}
+          >
+            <BarChart3 className="h-3 w-3 mr-1" /> View Results
+          </Button>
+        );
+      case 'scheduled':
+        return (
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-blue-600 hover:text-blue-700"
+            disabled={!screening.joinurl}
+            onClick={() => handleStartScreening(screening)}
+          >
+            <Play className="h-3 w-3 mr-1" /> Join Call
+          </Button>
+        );
+      case 'pending':
+        return (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setSelectedCandidate(screening);
+              setIsScreeningDialogOpen(true);
+            }}
+          >
+            <Clock className="h-3 w-3 mr-1" /> Schedule
+          </Button>
+        );
+      default:
+        return null;
+    }
+  };
+
+  // Render pagination controls
+  const renderPagination = () => {
+    return (
+      <div className="flex items-center justify-between mt-4">
+        <div className="text-sm text-muted-foreground">
+          Showing {screenings.length > 0 ? (page - 1) * limit + 1 : 0} to {Math.min(page * limit, totalItems)} of {totalItems} entries
+        </div>
+        <div className="flex space-x-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setPage(page - 1)}
+            disabled={page === 1 || loading}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Previous
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setPage(page + 1)}
+            disabled={page >= totalPages || loading}
+          >
+            Next
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="container mx-auto py-6">
+      <h1 className="text-2xl font-bold mb-6">Candidate Screenings</h1>
+      
+      <div className="flex items-center justify-between mb-6">
+        <Button 
+          variant={showDashboard ? "secondary" : "outline"}
+          onClick={() => setShowDashboard(!showDashboard)}
+        >
+          <BarChart3 className="h-4 w-4 mr-2" />
+          {showDashboard ? "Hide Analytics" : "Show Analytics"}
+        </Button>
+        
+        <div className="flex space-x-2">
+          <div className="relative w-64">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search candidates..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-8"
+            />
+          </div>
+          <Button 
+            variant="outline" 
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+          >
+            <Filter className="h-4 w-4 mr-2" />
+            Filters
+          </Button>
+        </div>
+      </div>
+      
+      {showDashboard && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Screening Analytics</CardTitle>
+            <CardDescription>Overview of candidate screening performance</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Total Screenings</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{filteredScreenings.length}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Pending</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {filteredScreenings.filter(s => s.status === 'pending').length}
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Scheduled</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {filteredScreenings.filter(s => s.status === 'scheduled').length}
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Completed</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {filteredScreenings.filter(s => s.status === 'completed').length}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      {showAdvancedFilters && (
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle>Advanced Filters</CardTitle>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowAdvancedFilters(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="positionFilter">Position</Label>
+                <Select
+                  value={positionFilter}
+                  onValueChange={setPositionFilter}
+                >
+                  <SelectTrigger id="positionFilter">
+                    <SelectValue placeholder="Select position" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Positions</SelectItem>
+                    {Array.from(new Set(screenings.map(s => s.position).filter(Boolean)))
+                      .map(position => (
+                        <SelectItem key={position} value={position as string}>
+                          {position}
+                        </SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="departmentFilter">Department</Label>
+                <Select
+                  value={departmentFilter}
+                  onValueChange={setDepartmentFilter}
+                >
+                  <SelectTrigger id="departmentFilter">
+                    <SelectValue placeholder="Select department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Departments</SelectItem>
+                    {departments.map(dept => (
+                      <SelectItem key={dept.id} value={dept.id}>
+                        {dept.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="locationFilter">Location</Label>
+                <Select
+                  value={locationFilter}
+                  onValueChange={setLocationFilter}
+                >
+                  <SelectTrigger id="locationFilter">
+                    <SelectValue placeholder="Select location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Locations</SelectItem>
+                    {Array.from(new Set(screenings.map(s => s.locationId).filter(Boolean)))
+                      .map(locationId => (
+                        <SelectItem key={locationId as string} value={locationId as string}>
+                          {locationId}
+                        </SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="sourceFilter">Source</Label>
+                <Select
+                  value={sourceFilter}
+                  onValueChange={setSourceFilter}
+                >
+                  <SelectTrigger id="sourceFilter">
+                    <SelectValue placeholder="Select source" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Sources</SelectItem>
+                    {Array.from(new Set(screenings.map(s => s.source).filter(Boolean)))
+                      .map(source => (
+                        <SelectItem key={source as string} value={source as string}>
+                          {source}
+                        </SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="all">All Screenings</TabsTrigger>
+          <TabsTrigger value="pending">Pending</TabsTrigger>
+          <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
+          <TabsTrigger value="completed">Completed</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value={activeTab} className="mt-6">
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <p>Loading screenings...</p>
+            </div>
+          ) : error ? (
+            <div className="flex justify-center items-center h-64">
+              <p className="text-red-500">{error}</p>
+            </div>
+          ) : filteredScreenings.length === 0 ? (
+            <div className="flex justify-center items-center h-64">
+              <p>No screenings found. Try adjusting your filters.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredScreenings.map((screening) => (
+                <Card key={screening.id} className="overflow-hidden">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold">
+                          {screening.employee ? 
+                            `${screening.employee.first_name} ${screening.employee.last_name}` : 
+                            screening.candidate}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {screening.position || 'No position specified'}
+                        </p>
+                        <p className="text-sm">
+                          {screening.employee ? 
+                            screening.employee.email : 
+                            screening.email || 'No email'}
+                        </p>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {getStatusBadge(screening.status, screening.scheduledFor)}
+                          {screening.emailStatus && getEmailStatusBadge(screening.emailStatus)}
+                          {screening.departmentId && (
+                            <Badge variant="outline" className="bg-slate-100">
+                              <Building2 className="h-3 w-3 mr-1" />
+                              {getDepartmentById(screening.departmentId)?.name || 'Unknown Department'}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end space-y-2">
+                        <div className="text-sm text-muted-foreground">
+                          {new Date(screening.created).toLocaleDateString()}
+                        </div>
+                        {getActionButton(screening)}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+              
+              {renderPagination()}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
+      
+      {/* Placeholder for Screening Dialog */}
+      {isScreeningDialogOpen && selectedCandidate && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-bold mb-4">
+              Screening Details: {selectedCandidate.employee ? 
+                `${selectedCandidate.employee.first_name} ${selectedCandidate.employee.last_name}` : 
+                selectedCandidate.candidate}
+            </h2>
+            
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-medium">Status</h3>
+                <div className="mt-1">{getStatusBadge(selectedCandidate.status, selectedCandidate.scheduledFor)}</div>
+              </div>
+              
+              <div>
+                <h3 className="font-medium">Position</h3>
+                <p>{selectedCandidate.position || 'Not specified'}</p>
+              </div>
+              
+              {selectedCandidate.score !== null && selectedCandidate.score !== undefined && (
+                <div>
+                  <h3 className="font-medium">Score</h3>
+                  <p>{selectedCandidate.score}/100</p>
+                </div>
+              )}
+              
+              <div className="flex justify-end space-x-2 mt-6">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsScreeningDialogOpen(false)}
+                >
+                  Close
+                </Button>
+                {selectedCandidate.status === 'completed' && (
+                  <Button variant="outline">
+                    <Download className="h-4 w-4 mr-2" /> Download Report
+                  </Button>
+                )}
+                {selectedCandidate.status === 'scheduled' && selectedCandidate.joinurl && (
+                  <Button onClick={() => handleStartScreening(selectedCandidate)}>
+                    <Play className="h-4 w-4 mr-2" /> Join Call
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ScreeningsPage;
