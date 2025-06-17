@@ -44,9 +44,9 @@ const LandingPage = () => {
                 <span className="absolute -top-1 -right-7 px-1.5 py-0.5 rounded-full text-xs bg-primary text-white">New</span>
               </span>
             </a>
-            <a href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
+            <Link to="/pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
               Pricing
-            </a>
+            </Link>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, x: 20 }}

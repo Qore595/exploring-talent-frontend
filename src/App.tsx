@@ -29,6 +29,7 @@ import RegisterPage from "./pages/auth/RegisterPage";
 
 // Marketing Pages
 import ComingSoonPage from "./pages/marketing/ComingSoonPage";
+import PricingPage from "./pages/pricing/PricingPage";
 
 // Dashboard Pages
 import DashboardRouter from "./pages/dashboard/DashboardRouter";
@@ -413,6 +414,12 @@ const App = () => (
                   <ComingSoonPage />
                 </MainLayout>
               }
+            />
+
+            {/* Pricing Page - Public */}
+            <Route
+              path="/pricing"
+              element={<PricingPage />}
             />
 
             {/* Unified Jobs Management - For All Roles except Applicant */}
