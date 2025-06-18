@@ -188,68 +188,131 @@ const ScreeningDialog: React.FC<ScreeningDialogProps> = ({
     };
   };
   
-  // Generate strengths based on conversation analysis
+  // Generate strengths based on user's demonstrated skills and performance
   const generateStrengths = (analysis: ConversationAnalysis | null) => {
     if (!analysis || !analysis.keyTopics || analysis.keyTopics.length === 0) {
-      return ['No data available to determine strengths'];
+      return ['Successfully completed the technical screening'];
     }
     
-    // Generate meaningful strengths from key topics and sentiment
-    const strengths = [];
+    // Map of skills to user-focused descriptions
+    const skillMappings: Record<string, string> = {
+      // Technical skills
+      'javascript': 'Proficient in JavaScript development',
+      'react': 'Experience with React.js development',
+      'node': 'Skilled in Node.js backend development',
+      'python': 'Strong Python programming skills',
+      'java': 'Java development experience',
+      'sql': 'Database and SQL knowledge',
+      'api': 'API development experience',
+      'cloud': 'Cloud computing experience',
+      'aws': 'AWS cloud platform knowledge',
+      'docker': 'Experience with Docker containers',
+      'git': 'Proficient with version control',
+      'testing': 'Software testing experience',
+      'frontend': 'Frontend development skills',
+      'backend': 'Backend development experience',
+      'database': 'Database management skills',
+      'mobile': 'Mobile app development experience',
+      'devops': 'DevOps practices knowledge',
+      
+      // Common screening aspects
+      'screening': 'Performed well in technical screening',
+      'content': 'Strong knowledge of technical content',
+      'available': 'Demonstrated good availability and responsiveness',
+      'interview': 'Effective interview participation',
+      'code': 'Strong coding abilities',
+      'algorithm': 'Good understanding of algorithms',
+      'problem solving': 'Effective problem-solving skills',
+      'technical': 'Solid technical knowledge base'
+    };
     
-    // Add strengths based on key topics
+    const strengths: string[] = [];
+    const usedKeywords = new Set<string>();
+    
+    // Process each topic and map to user-focused strengths
     analysis.keyTopics.forEach(topic => {
-      if (topic !== 'No key topics identified') {
-        strengths.push(`Strong ${topic} skills`);
+      if (topic === 'No key topics identified') return;
+      
+      const lowerTopic = topic.toLowerCase().trim();
+      if (lowerTopic.length < 3) return;
+      
+      // Check for exact matches first
+      for (const [key, value] of Object.entries(skillMappings)) {
+        if (lowerTopic === key && !usedKeywords.has(key)) {
+          strengths.push(value);
+          usedKeywords.add(key);
+          return;
+        }
+      }
+      
+      // Check for partial matches
+      for (const [key, value] of Object.entries(skillMappings)) {
+        if (lowerTopic.includes(key) && !usedKeywords.has(key)) {
+          strengths.push(value);
+          usedKeywords.add(key);
+          return;
+        }
       }
     });
     
-    // Add sentiment-based strengths
-    if (analysis.sentiment === 'positive') {
-      strengths.push('Strong communication skills');
-    }
-    
-    // Add strengths based on message count
-    if (analysis.totalMessages > 15) {
-      strengths.push('Strong engagement in conversation');
-    }
-    if (analysis.customerMessages / analysis.totalMessages > 0.4) {
-      strengths.push('Strong responsive communication style');
+    // Add communication and engagement insights
+    if (analysis.totalMessages > 0) {
+      const responseRatio = analysis.customerMessages / analysis.totalMessages;
+      
+      // Communication quality
+      if (analysis.sentiment === 'positive' && analysis.totalMessages > 5) {
+        strengths.push('Clear and effective communication style');
+      }
+      
+      // Engagement level
+      if (responseRatio > 0.4 && analysis.totalMessages > 8) {
+        strengths.push('Active and engaged participant');
+      }
     }
     
     // Ensure we have at least some strengths
     if (strengths.length === 0) {
-      strengths.push('Participated in the interview process');
+      strengths.push('Successfully completed the technical screening');
     }
     
-    // Limit to 5 most relevant strengths
-    return strengths.slice(0, 5);
+    // Return top 4 strengths
+    return strengths.slice(0, 4);
   };
   
-  // Generate weaknesses based on conversation analysis
+  // Generate specific, actionable areas for improvement
   const generateWeaknesses = (analysis: ConversationAnalysis | null) => {
     if (!analysis) {
-      return ['No data available to determine areas for improvement'];
+      return ['Limited assessment data available for detailed feedback'];
     }
     
-    const weaknesses = [];
+    const weaknesses: string[] = [];
+    const responseRatio = analysis.customerMessages / analysis.totalMessages;
     
-    // Add weaknesses based on message count
+    // Analyze engagement level
     if (analysis.totalMessages < 10) {
-      weaknesses.push('Could improve conversation engagement');
+      weaknesses.push('Limited engagement in the conversation');
     }
     
-    // Add sentiment-based weaknesses
+    // Analyze sentiment patterns
     if (analysis.sentiment === 'negative') {
-      weaknesses.push('Could improve positive communication tone');
+      weaknesses.push('Needs to maintain a more constructive communication style');
+    } else if (analysis.sentiment === 'neutral' && analysis.totalMessages > 10) {
+      weaknesses.push('Could show more enthusiasm in technical discussions');
     }
     
-    // Add weaknesses based on response patterns
-    if (analysis.customerMessages / analysis.totalMessages < 0.3 && analysis.totalMessages > 5) {
-      weaknesses.push('Could improve responsiveness in conversation');
+    // Analyze response patterns
+    if (responseRatio < 0.3 && analysis.totalMessages > 5) {
+      weaknesses.push('Should contribute more actively to the dialogue');
+    } else if (analysis.customerMessages < 3) {
+      weaknesses.push('Needs to elaborate more in responses');
     }
     
-    // If we couldn't find specific weaknesses, add generic ones
+    // Add technical depth assessment if applicable
+    if (analysis.keyTopics && analysis.keyTopics.length < 3) {
+      weaknesses.push('Could expand on technical depth in discussions');
+    }
+    
+    // If no specific weaknesses found, provide constructive feedback
     if (weaknesses.length === 0) {
       weaknesses.push('Could benefit from more experience in the field');
       weaknesses.push('Needs more experience with advanced frameworks');

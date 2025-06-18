@@ -185,7 +185,25 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
 
       {/* Navigation */}
       <div className="sidebar-nav">
-        {/* Dashboard Link */}
+
+        <Link
+            to="/coming-soon"
+            className={cn(
+              "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors hover:bg-accent hover:text-accent-foreground text-primary hover:bg-primary/10",
+              isCollapsed ? "justify-center" : "justify-between"
+            )}
+          >
+            <div className="flex items-center">
+            {!isCollapsed && (
+              <>
+                <span className="mr-2">Upcoming Features</span>
+                <span className="px-1.5 py-0.5 bg-primary/20 rounded-full text-xs font-medium text-primary">New</span>
+              </>
+            )}
+          </div>
+          </Link>
+
+
         <Link
           to="/dashboard"
           className={cn(

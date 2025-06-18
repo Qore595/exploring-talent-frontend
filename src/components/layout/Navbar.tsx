@@ -69,20 +69,6 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
             </div>
 
             <div className="flex items-center space-x-3 md:space-x-4">
-              {/* Coming Soon Features Button */}
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-primary hover:bg-primary/10 hover:text-primary hidden md:flex"
-                title="Upcoming Features"
-                asChild
-              >
-                <Link to="/coming-soon">
-                  <span className="mr-2">Upcoming Features</span>
-                  <span className="px-1.5 py-0.5 bg-primary/20 rounded-full text-xs font-medium text-primary">New</span>
-                </Link>
-              </Button>
-
               {/* Tutorial Button */}
               <Button
                 variant="outline"
