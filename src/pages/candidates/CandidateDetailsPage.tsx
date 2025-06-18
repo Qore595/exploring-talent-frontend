@@ -24,11 +24,44 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+
 import { toast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-// Mock candidate data
+// Import the same mock candidate data from CandidatesPage
+import { mockCandidates as mainMockCandidates } from '@/pages/candidates/CandidatesPage';
+import { mockLocations, mockDepartments, getLocationById, getDepartmentById } from '@/types/organization';
+
+// Mock employees for assignment
+const mockEmployees = [
+  {
+    id: 'profile-1',
+    name: 'Alex Johnson',
+    role: 'Hiring Manager',
+    department: 'Engineering',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    candidateCount: 12
+  },
+  {
+    id: 'profile-2',
+    name: 'Sarah Chen',
+    role: 'Talent Scout',
+    department: 'HR',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    candidateCount: 8
+  },
+  {
+    id: 'profile-3',
+    name: 'Michael Torres',
+    role: 'Team Member',
+    department: 'Design',
+    avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    candidateCount: 5
+  }
+];
+
+// Extend mock candidates with additional details if needed
 const mockCandidates = [
   {
     id: '1',
@@ -256,41 +289,7 @@ const statusConfig = {
   rejected: { label: 'Rejected', color: 'bg-red-100 text-red-800', icon: XCircle },
 };
 
-// Mock employees for reassignment
-const mockEmployees = [
-  {
-    id: 'profile-1',
-    name: 'Alex Johnson',
-    role: 'Hiring Manager',
-    department: 'Engineering',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    candidateCount: 12
-  },
-  {
-    id: 'profile-2',
-    name: 'Sarah Chen',
-    role: 'Talent Scout',
-    department: 'Recruitment',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    candidateCount: 28
-  },
-  {
-    id: 'profile-3',
-    name: 'Michael Torres',
-    role: 'Team Member',
-    department: 'Product',
-    avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    candidateCount: 3
-  },
-  {
-    id: 'profile-4',
-    name: 'Jessica Williams',
-    role: 'Marketing Recruiter',
-    department: 'Marketing',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    candidateCount: 15
-  }
-];
+// Using the mockEmployees array defined at the top of the file
 
 const CandidateDetailsPage = () => {
   const { candidateId } = useParams();
@@ -301,8 +300,50 @@ const CandidateDetailsPage = () => {
   const [selectedEmployee, setSelectedEmployee] = useState('');
 
   useEffect(() => {
-    // In a real app, fetch candidate data from API
-    const foundCandidate = mockCandidates.find(c => c.id === candidateId);
+    // First, try to find in detailed mock candidates
+    let foundCandidate = mockCandidates.find(c => c.id === candidateId);
+    
+    // If not found, try to find in the main candidates list and adapt the data
+    if (!foundCandidate) {
+      const mainCandidate = mainMockCandidates.find(c => c.id === candidateId);
+      
+      if (mainCandidate) {
+        const location = mainCandidate.locationId ? getLocationById(mainCandidate.locationId)?.name : 'Unknown Location';
+        
+        // Adapt the main candidate data format to match detailed format
+        const adaptedCandidate: any = {
+          ...mainCandidate,
+          location: location,
+          email: mainCandidate.email || `${mainCandidate.name.toLowerCase().replace(' ', '.')}@example.com`,
+          phone: mainCandidate.phone || '(555) 123-4567',
+          summary: mainCandidate.notes || `${mainCandidate.name} is a candidate for the ${mainCandidate.position} position.`,
+          assignedTo: {
+            id: mainCandidate.assignedTo || 'profile-1',
+            name: 'Talent Scout',
+            role: 'Recruiter',
+            avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+          },
+          experience: [],
+          education: [],
+          interviews: [],
+          notes: []
+        };
+        
+        // Add notes if available
+        if (mainCandidate.notes) {
+          adaptedCandidate.notes = [
+            {
+              id: `note-auto-${mainCandidate.id}`,
+              author: 'System',
+              date: new Date().toISOString(),
+              content: mainCandidate.notes
+            }
+          ];
+        }
+        
+        foundCandidate = adaptedCandidate;
+      }
+    }
 
     if (foundCandidate) {
       setCandidate(foundCandidate);

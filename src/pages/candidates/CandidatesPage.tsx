@@ -7,6 +7,7 @@ import {
   Download, Mail, Phone, Calendar, FileText, User, Layers
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { QuickViewModal } from '@/components/ui/quick-view-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +31,7 @@ import {
 import { toast } from '@/hooks/use-toast';
 
 // Mock candidates data with location and department information
-const mockCandidates: Candidate[] = [
+export const mockCandidates: Candidate[] = [
   {
     id: '1',
     name: 'Jordan Lee',
@@ -277,6 +278,8 @@ const CandidatesPage = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [showDashboard, setShowDashboard] = useState(true);
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
 
   // Filter candidates based on user role
   const roleFilteredCandidates = useMemo(() => {
@@ -409,6 +412,14 @@ const CandidatesPage = () => {
   // Handle actions
   const handleViewCandidate = (id: string) => {
     navigate(`/candidates/${id}`);
+  };
+
+  const handleQuickView = (id: string) => {
+    const candidate = mockCandidates.find(c => c.id === id);
+    if (candidate) {
+      setSelectedCandidate(candidate);
+      setIsQuickViewOpen(true);
+    }
   };
 
   const handleCandidateAction = (id: string) => {
@@ -965,8 +976,8 @@ const CandidatesPage = () => {
             <CandidateCard
               key={candidate.id}
               candidate={candidate}
-              onView={handleViewCandidate}
-              onAction={handleCandidateAction}
+              onView={handleQuickView}
+              onAction={handleViewCandidate}
             />
           ))}
         </div>
@@ -1062,12 +1073,7 @@ const CandidatesPage = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => {
-                              toast({
-                                title: "Quick View",
-                                description: `Showing summary for ${candidate.name}`,
-                              });
-                            }}
+                            onClick={() => handleQuickView(candidate.id)}
                           >
                             Quick View
                           </Button>
@@ -1088,6 +1094,13 @@ const CandidatesPage = () => {
           </CardContent>
         </Card>
       )}
+      
+      {/* Quick View Modal */}
+      <QuickViewModal
+        candidate={selectedCandidate}
+        isOpen={isQuickViewOpen}
+        onClose={() => setIsQuickViewOpen(false)}
+      />
     </div>
   );
 };
