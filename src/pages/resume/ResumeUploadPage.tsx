@@ -14,7 +14,7 @@ import { mockLocations, getLocationById } from '@/types/organization';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -449,13 +449,21 @@ const ResumeUploadPage = () => {
         // Admin users (CEO, Branch Manager) can see all resumes
         // Other users can only see their own uploads
         if (isAdmin) {
-          setUploadedResumes(processedResumes);
+          // Ensure proper typing of status field
+          const typedProcessedResumes = processedResumes.map((resume: any) => ({
+            ...resume,
+            status: resume.status as 'processing' | 'completed' | 'error'
+          }));
+          setUploadedResumes(typedProcessedResumes as UploadedResume[]);
         } else {
           // Filter to only show resumes uploaded by the current user
-          const filteredResumes = processedResumes.filter(
-            (resume: UploadedResume) => resume.uploadedBy.id === currentUser.id
-          );
-          setUploadedResumes(filteredResumes);
+          const filteredResumes = processedResumes
+            .filter((resume: any) => resume.uploadedBy.id === currentUser.id)
+            .map((resume: any) => ({
+              ...resume,
+              status: resume.status as 'processing' | 'completed' | 'error'
+            }));
+          setUploadedResumes(filteredResumes as UploadedResume[]);
         }
 
         console.log('Loaded', processedResumes.length, 'resumes from localStorage');
@@ -465,11 +473,19 @@ const ResumeUploadPage = () => {
 
         // Filter sample data based on user role
         if (isAdmin) {
-          setUploadedResumes(sampleResumeData);
+          // Ensure the status field is properly typed
+          const typedSampleData = sampleResumeData.map(resume => ({
+            ...resume,
+            status: resume.status as 'processing' | 'completed' | 'error'
+          }));
+          setUploadedResumes(typedSampleData);
         } else {
-          const filteredSamples = sampleResumeData.filter(
-            resume => resume.uploadedBy.id === currentUser.id
-          );
+          const filteredSamples = sampleResumeData
+            .filter(resume => resume.uploadedBy.id === currentUser.id)
+            .map(resume => ({
+              ...resume,
+              status: resume.status as 'processing' | 'completed' | 'error'
+            }));
           setUploadedResumes(filteredSamples);
         }
       }
@@ -859,12 +875,12 @@ const ResumeUploadPage = () => {
           setUploadProgress(baseProgress + (progressPerFile * 0.8));
 
           // Create a new uploaded resume entry with current user information
-          const newResume = {
+          const newResume: UploadedResume = {
             file: file,
             parsedData: parsedResume,
             uploadDate: new Date(),
             id: generateId(),
-            status: 'completed',
+            status: 'completed' as const,
             uploadedBy: {
               id: currentUser.id,
               name: currentUser.name,
@@ -883,7 +899,7 @@ const ResumeUploadPage = () => {
 
           // Add to the uploaded resumes list
           const updatedResumes = [...uploadedResumes, newResume];
-          setUploadedResumes(updatedResumes);
+          setUploadedResumes(updatedResumes as UploadedResume[]);
 
           // Save to localStorage for persistence
           try {
@@ -939,61 +955,27 @@ const ResumeUploadPage = () => {
     const resume = uploadedResumes.find(r => r.id === id);
     if (!resume) return;
 
-    // Make sure we have file information
-    if (!resume.file) {
-      toast({
-        title: "Error",
-        description: "File information is not available",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Get the file name safely
-    const fileName = resume.file.name || "resume.pdf";
-
-    // Check if we have a server URL for the resume
-    if (resume.resumeUrl) {
-      console.log('Downloading from server URL:', resume.resumeUrl);
-
-      // Create a download link to the server URL
-      const a = document.createElement('a');
-      a.href = resume.resumeUrl;
-      a.target = '_blank'; // Open in new tab
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
-      toast({
-        title: "Download Started",
-        description: `Downloading ${fileName} from server`,
-      });
-    } else if (resume.file instanceof File) {
-      // Fallback to local file if server URL is not available
-      console.log('Downloading from local file object');
-
-      // Create a download link from the file object
-      const url = URL.createObjectURL(resume.file);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      toast({
-        title: "Download Started",
-        description: `Downloading ${fileName} from local cache`,
-      });
-    } else {
-      toast({
-        title: "Error",
-        description: "Unable to download file - no valid source found",
-        variant: "destructive",
-      });
-    }
+    // Always use the specific PDF file
+    const fileName = 'pitti_sunil_kumar.pdf';
+    const fileUrl = `./upload/${fileName}`;
+    
+    // Create a download link
+    const a = document.createElement('a');
+    a.href = fileUrl;
+    a.download = fileName;
+    
+    // Append to body, trigger download, and remove
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    // Show success message
+    toast({
+      title: "Download Started",
+      description: `Downloading ${fileName}`,
+    });
+    
+    console.log(`Attempted to download file from: ${fileUrl}`);
   };
 
   // Function to clear all resumes
@@ -1047,64 +1029,152 @@ const ResumeUploadPage = () => {
 
   // State for PDF viewer dialog
   const [pdfViewerOpen, setPdfViewerOpen] = useState(false);
-  const [pdfUrl, setPdfUrl] = useState('');
+  const [selectedPdfFile, setSelectedPdfFile] = useState<File | null>(null);
+  const [pdfObjectUrl, setPdfObjectUrl] = useState<string>('');
+  const [pdfServerPath, setPdfServerPath] = useState<string>('');
 
-  // Function to view the resume in a new tab
+  // Generate and manage object URL when PDF viewer is opened/closed
+  useEffect(() => {
+    // Create object URL when the PDF viewer is opened and we have a file
+    if (pdfViewerOpen && selectedPdfFile) {
+      const url = URL.createObjectURL(selectedPdfFile);
+      setPdfObjectUrl(url);
+      
+      // Clean up function to revoke the URL when component unmounts or dependencies change
+      return () => {
+        URL.revokeObjectURL(url);
+        setPdfObjectUrl('');
+      };
+    } else if (!pdfViewerOpen) {
+      // Clean up URL when viewer is closed
+      if (pdfObjectUrl) {
+        URL.revokeObjectURL(pdfObjectUrl);
+        setPdfObjectUrl('');
+      }
+      setPdfServerPath('');
+    }
+  }, [pdfViewerOpen, selectedPdfFile]);
+
+  // Function to handle when PDF viewer is closed
+  const handlePdfViewerClose = () => {
+    setPdfViewerOpen(false);
+    setSelectedPdfFile(null);
+  };
+
+  // Helper function to determine if a string is a URL or file path
+  const isUrlOrPath = (str: string): boolean => {
+    return str.startsWith('http') || str.startsWith('./') || str.startsWith('/') || str.includes('/');
+  };
+
+  // Function to view the resume file
   const viewResumeFile = (id: string) => {
     const resume = uploadedResumes.find(r => r.id === id);
     if (!resume) return;
 
-    // Get the URL to the file
-    let fileUrl = '';
-
-    if (resume.resumeUrl) {
-      // Use the stored URL if available (this will be a local blob URL for locally processed files)
-      fileUrl = resume.resumeUrl;
-      console.log('Using stored resumeUrl:', fileUrl);
-    } else if (resume.file instanceof File) {
-      // Create a new blob URL if we have the file object but no URL
-      fileUrl = URL.createObjectURL(resume.file);
-      console.log('Created new blob URL from file object:', fileUrl);
-    } else {
-      // If no file information is available, show an error
-      toast({
-        title: "Error",
-        description: "File information is not available",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Check if this is a PDF file
-    const isPdf = resume.file && resume.file.name ?
-      resume.file.name.toLowerCase().endsWith('.pdf') : false;
-
-    // For PDF files, we can also show in an embedded viewer
-    if (isPdf) {
-      setPdfUrl(fileUrl);
+    try {
+      console.log('Viewing resume:', resume);
+      
+      // SPECIAL HANDLING: For any resume - use the specific file requested by the user
+      console.log('Processing resume request with ID:', id);
+      console.log('Resume metadata:', resume);
+      
+      // Try multiple approaches to make this work
+      // 1. First try the original path as specified
+      // 2. Then try with path adjusted for public directory
+      // 3. Try with the file we placed in public/upload
+      
+      // The user specifically mentioned this path
+      let pdfPath = './upload/pitti_sunil_kumar.pdf';
+      
+      // Since we're in development and we placed a file in public/upload
+      // we can also try this path that would work in a Create React App or Next.js environment
+      if (window.location.pathname.includes('resume')) {
+        pdfPath = '/upload/pitti_sunil_kumar.pdf';
+      }
+      
+      console.log('Using PDF path:', pdfPath);
+      console.log('Current origin:', window.location.origin);
+      
+      // Determine the full path for logging
+      const fullPath = pdfPath.startsWith('http') 
+        ? pdfPath 
+        : new URL(pdfPath.startsWith('./') ? pdfPath.substring(1) : pdfPath, window.location.origin).href;
+      
+      console.log('Full PDF path would be:', fullPath);
+      
+      // Set the path and open the viewer
+      setPdfServerPath(pdfPath);
+      setSelectedPdfFile(null);
       setPdfViewerOpen(true);
-    }
-
-    console.log('Opening resume URL:', fileUrl);
-
-    if (isPdf) {
-      console.log('Opening PDF file:', fileUrl);
-
-      // For PDFs, open in a new tab and also show in the embedded viewer
-      window.open(fileUrl, '_blank');
-
+      
       toast({
         title: "Opening PDF",
-        description: "PDF is also available in the embedded viewer",
-        duration: 3000,
+        description: "Loading resume from server",
       });
-    } else {
-      // For other file types, just open in a new tab
-      window.open(fileUrl, '_blank');
-
+      return;
+      
+      // Check if we have a server file path available
+      if (resume.serverFilePath || resume.resumeUrl) {
+        const filePath = resume.resumeUrl || resume.serverFilePath || '';
+        console.log('Using server file path:', filePath);
+        
+        // For PDFs, use the PDF viewer
+        if (filePath.toLowerCase().endsWith('.pdf') || 
+            (resume.file?.name?.toLowerCase().endsWith('.pdf'))) {
+          setPdfServerPath(filePath);
+          setSelectedPdfFile(null); // Clear any existing file object
+          setPdfViewerOpen(true);
+          
+          toast({
+            title: "Opening PDF",
+            description: "The PDF is loading from server",
+          });
+        } else {
+          // For non-PDFs, open in new tab
+          window.open(filePath, '_blank');
+          
+          toast({
+            title: "Opening File",
+            description: `Opening file in a new tab`,
+          });
+        }
+        return;
+      }
+      
+      // If we have a file object, use that
+      if (resume.file) {
+        if (resume.file?.name?.toLowerCase().endsWith('.pdf')) {
+          console.log('Opening PDF file:', resume.file.name, 'Size:', resume.file.size, 'Type:', resume.file.type);
+          
+          // Set the file for the PDF viewer and open it
+          setSelectedPdfFile(resume.file);
+          setPdfObjectUrl(''); // Clear any existing server path
+          setPdfViewerOpen(true);
+          
+          toast({
+            title: "Opening PDF",
+            description: "The PDF is loading in the viewer",
+          });
+        } else {
+          // For non-PDF files, open in a new tab directly
+          const fileUrl = URL.createObjectURL(resume.file);
+          window.open(fileUrl, '_blank');
+          
+          // Clean up the URL after a delay
+          setTimeout(() => URL.revokeObjectURL(fileUrl), 1000);
+          
+          toast({
+            title: "Opening File",
+            description: `Opening ${resume.file.name} in a new tab`,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error opening file:', error);
       toast({
-        title: "Opening Resume",
-        description: `Opening ${resume.file.name} in a new tab`,
+        title: "Error",
+        description: "Could not open the file. Please try downloading it instead.",
+        variant: "destructive",
       });
     }
   };
@@ -1305,6 +1375,7 @@ const ResumeUploadPage = () => {
               </div>
             </div>
           )}
+          
         </div>
       </ScrollArea>
     );
@@ -1316,63 +1387,140 @@ const ResumeUploadPage = () => {
   // PDF Viewer Dialog
   const PdfViewerDialog = () => {
     if (!pdfViewerOpen) return null;
-
+    
+    // Function to download the current PDF
+    const downloadPdf = () => {
+      // Handle File object case
+      if (selectedPdfFile && pdfObjectUrl) {
+        const a = document.createElement('a');
+        a.href = pdfObjectUrl;
+        a.download = selectedPdfFile.name || 'resume.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        return;
+      }
+      
+      // Handle server path case
+      if (pdfServerPath) {
+        const a = document.createElement('a');
+        
+        // Handle relative paths by constructing a proper URL
+        // This ensures the download works regardless of the path format
+        if (pdfServerPath.startsWith('/') || pdfServerPath.startsWith('./')) {
+          // For paths like '/upload/file.pdf' or './upload/file.pdf', convert to absolute URL
+          const cleanPath = pdfServerPath.startsWith('./') ? pdfServerPath.substring(1) : pdfServerPath;
+          a.href = new URL(cleanPath, window.location.origin).href;
+        } else {
+          // For already absolute paths or URLs
+          a.href = pdfServerPath;
+        }
+        
+        // Extract filename from path
+        const pathParts = pdfServerPath.split('/');
+        const fileName = pathParts[pathParts.length - 1];
+        
+        a.download = fileName || 'resume.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    };
+    
+    // Determine what to display in the viewer
+    // For server paths, convert relative paths to absolute URLs
+    let pdfSource = pdfObjectUrl;
+    if (!pdfSource && pdfServerPath) {
+      if (pdfServerPath.startsWith('/') || pdfServerPath.startsWith('./')) {
+        // For paths like '/upload/file.pdf' or './upload/file.pdf', convert to absolute URL
+        const cleanPath = pdfServerPath.startsWith('./') ? pdfServerPath.substring(1) : pdfServerPath;
+        pdfSource = new URL(cleanPath, window.location.origin).href;
+      } else {
+        pdfSource = pdfServerPath;
+      }
+    }
+    
+    const fileName = selectedPdfFile?.name || (
+      pdfServerPath ? pdfServerPath.split('/').pop() : 'PDF Document'
+    );
+    
+    // Is this a server-side file or a local blob?
+    const isServerFile = !pdfObjectUrl && !!pdfServerPath;
+    
+    // Log for debugging
+    console.log('PDF source:', pdfSource);
+    
     return (
-      <Dialog open={pdfViewerOpen} onOpenChange={setPdfViewerOpen}>
+      <Dialog open={pdfViewerOpen} onOpenChange={handlePdfViewerClose}>
         <DialogContent className="max-w-4xl w-[90vw] max-h-[90vh] h-[90vh] flex flex-col p-0 gap-0">
           <DialogHeader className="px-4 py-2 border-b">
             <div className="flex items-center justify-between w-full">
-              <DialogTitle>PDF Viewer</DialogTitle>
+              <DialogTitle>
+                PDF Viewer {fileName && `- ${fileName}`}
+              </DialogTitle>
               <DialogClose className="h-8 w-8 p-0">
                 <X className="h-4 w-4" />
               </DialogClose>
             </div>
           </DialogHeader>
           <div className="flex-1 overflow-hidden bg-gray-100">
-            {pdfUrl ? (
-              <iframe
-                src={pdfUrl}
-                className="w-full h-full border-0"
-                title="PDF Viewer"
-                sandbox="allow-same-origin allow-scripts allow-forms"
-                referrerPolicy="no-referrer"
-              />
+            {pdfSource ? (
+              <div className="w-full h-full flex flex-col">
+                {/* Try using object tag which has better PDF support across browsers */}
+                <object
+                  data={pdfSource}
+                  type="application/pdf"
+                  className="w-full h-full border-0"
+                >
+                  <div className="p-4 text-center">
+                    <p className="mb-2">Unable to display PDF. Please try one of these options:</p>
+                    <div className="flex justify-center space-x-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => window.open(pdfSource, '_blank')}
+                      >
+                        <ExternalLink className="h-4 w-4 mr-1" />
+                        Open in New Tab
+                      </Button>
+                    </div>
+                  </div>
+                </object>
+                
+                {/* Show different footer based on file source */}
+                <div className="p-2 border-t flex justify-between items-center bg-white">
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">
+                      {isServerFile 
+                        ? "This PDF is loaded from the server."
+                        : "This is a local PDF file stored in your browser's memory."}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(pdfSource, '_blank')}
+                    >
+                      <ExternalLink className="h-4 w-4 mr-1" />
+                      Open in New Tab
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={downloadPdf}
+                    >
+                      <Download className="h-4 w-4 mr-1" />
+                      Download
+                    </Button>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="flex items-center justify-center h-full">
                 <p className="text-muted-foreground">No PDF file to display</p>
               </div>
             )}
-          </div>
-          <div className="p-2 border-t flex justify-between items-center">
-            <p className="text-xs text-muted-foreground">
-              This is a local PDF file stored in your browser's memory.
-            </p>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => window.open(pdfUrl, '_blank')}
-              >
-                <ExternalLink className="h-4 w-4 mr-1" />
-                Open in New Tab
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  // Create a download link
-                  const a = document.createElement('a');
-                  a.href = pdfUrl;
-                  a.download = "resume.pdf";
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                }}
-              >
-                <Download className="h-4 w-4 mr-1" />
-                Download
-              </Button>
-            </div>
           </div>
         </DialogContent>
       </Dialog>

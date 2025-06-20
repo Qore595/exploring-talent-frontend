@@ -48,63 +48,70 @@ export const UpcomingFeatures = () => {
       title: "Sales Component",
       description: "Advanced analytics and sales management tools to optimize your business revenue streams.",
       number: 1,
-      eta: "Q3 2025"
+      eta: "Q3 2026"
     },
     {
       icon: <FileSignature className="h-6 w-6" />,
-      title: "Offer Letter Generator",
-      description: "Automated generation of customized offer letters for new hires.",
+      title: "Documentation Generator",
+      description: "Automated generation of customized Documentations for new hires.",
       number: 2,
-      eta: "Q3 2025"
+      eta: "Q4 2026"
     },
     {
       icon: <Users className="h-6 w-6" />,
       title: "Employer and Employee Communication Agent",
       description: "Streamlined communication channels between employers and employees for enhanced productivity.",
       number: 3,
-      eta: "Q4 2025"
+      eta: "Q3 2026"
     },
     {
       icon: <FileText className="h-6 w-6" />,
       title: "H1B Document Validator",
       description: "AI-powered document validation to ensure your H1B filings are complete and error-free.",
       number: 4,
-      eta: "Q3 2025"
+      eta: "Q4 2026"
     },
     {
       icon: <AlertCircle className="h-6 w-6" />,
       title: "H1B RFE Predictor",
       description: "Predictive analytics to identify potential RFE triggers before submission.",
       number: 5,
-      eta: "Q4 2025"
+      eta: "Q4 2026"
     },
     {
       icon: <MessagesSquare className="h-6 w-6" />,
       title: "Mock up Interview for Visa Appointments",
       description: "Interactive mock interviews to prepare candidates for visa appointments with real scenarios.",
       number: 6,
-      eta: "Q2 2026"
+      eta: "Q4 2026"
     },
     {
       icon: <Calculator className="h-6 w-6" />,
       title: "Tax Filing Predictor",
       description: "Smart tax filing insights and predictive tools for employers and employees.",
       number: 7,
-      eta: "Q1 2026"
+      eta: "Q2 2026"
     },
     {
       icon: <MessageSquare className="h-6 w-6" />,
       title: "WhatsApp Messaging Agent",
       description: "Seamless WhatsApp integration for client communication and automated updates.",
       number: 8,
-      eta: "Q3 2025"
+      eta: "Q3 2026"
     },
     {
       icon: <Video className="h-6 w-6" />,
       title: "Video Interview Agent",
       description: "AI-powered interview scheduling, preparation, and feedback system.",
       number: 9,
-      eta: "Q1 2026"
+      eta: "Q3 2026"
+    },
+    {
+      icon: <Users className="h-6 w-6" />,
+      title: "VMS Integration",
+      description: "Seamless integration with Vendor Management Systems to streamline vendor and contractor management.",
+      number: 10,
+      eta: "Q4 2026"
     }
   ];
 

@@ -34,7 +34,7 @@ const ComingSoonPage = () => {
                   </a>
                 </Button>
                 <Button variant="outline" size="lg" asChild>
-                  <Link to="/">
+                  <Link to="/dashboard">
                     Return to Dashboard
                   </Link>
                 </Button>
