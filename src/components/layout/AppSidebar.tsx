@@ -33,6 +33,9 @@ import {
   ChevronRight,
   ChevronLeft,
   Menu as MenuIcon,
+  BookOpen,
+  FolderOpen,
+  FileUp,
 } from 'lucide-react';
 
 // Define types
@@ -61,6 +64,9 @@ const IconMap: Record<string, React.ElementType> = {
   "fa-user-check": UserCheck,
   "fa-eye": Eye,
   "fa-tachometer-alt": LayoutDashboard,
+  "fa-book-open": BookOpen,
+  "fa-folder-open": FolderOpen,
+  "fa-file-upload": FileUp,
   // Add more icon mappings as needed
 };
 
@@ -216,6 +222,72 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
             Dashboard
           </span>
         </Link>
+
+        {/* Documentation Menu */}
+        <div>
+          <button
+            onClick={() => toggleDropdown('Documentation')}
+            className={cn(
+              "nav-item w-full justify-between",
+              (location.pathname.startsWith('/documentation') ||
+               location.pathname.startsWith('/document-templates') ||
+               location.pathname.startsWith('/document-groups') ||
+               location.pathname.startsWith('/manual-documents')) && "active"
+            )}
+            aria-expanded={openDropdowns['Documentation']}
+            aria-controls="submenu-documentation"
+          >
+            <div className="flex items-center">
+              <BookOpen className="nav-icon" />
+              <span className={cn("nav-text", isCollapsed && "collapsed")}>
+                Documentation
+              </span>
+            </div>
+            {!isCollapsed && (
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 transition-transform duration-200",
+                  openDropdowns['Documentation'] ? "rotate-180" : ""
+                )}
+              />
+            )}
+          </button>
+          <div
+            id="submenu-documentation"
+            className={cn(
+              "nav-dropdown",
+              openDropdowns['Documentation'] && !isCollapsed ? "open" : "closed"
+            )}
+          >
+            <Link
+              to="/document-templates"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/document-templates') && "active"
+              )}
+            >
+              Document Templates
+            </Link>
+            <Link
+              to="/document-groups"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/document-groups') && "active"
+              )}
+            >
+              Document Groups
+            </Link>
+            <Link
+              to="/manual-documents"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/manual-documents') && "active"
+              )}
+            >
+              Manual Documents
+            </Link>
+          </div>
+        </div>
 
         {/* Menu Items */}
         {filteredMenus.map((menuItem) => {

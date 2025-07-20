@@ -81,6 +81,22 @@ import JobEditPage from "./pages/jobs/JobEditPage";
 // Profit Pages
 import ProfitCalculatorPage from "./pages/profit/ProfitCalculatorPage";
 
+// Documentation Pages
+import {
+  DocumentTemplatesPage,
+  DocumentGroupsPage,
+  ManualDocumentsPage,
+  CreateDocumentTemplatePage,
+  EditDocumentTemplatePage,
+  DocumentTemplateDetailsPage,
+  CreateDocumentGroupPage,
+  EditDocumentGroupPage,
+  DocumentGroupDetailsPage,
+  UploadManualDocumentPage,
+  EditManualDocumentPage,
+  ManualDocumentDetailsPage
+} from "./pages/documentation";
+
 // Feedback Page has been removed and integrated into ProfileDetailsPage
 
 // Landing Page
@@ -495,6 +511,139 @@ const App = () => (
                 <AuthProtection>
                   <MainLayout>
                     <SettingsPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            {/* Documentation Routes - For All Users */}
+            <Route
+              path="/document-templates"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <DocumentTemplatesPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            <Route
+              path="/document-templates/create"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <CreateDocumentTemplatePage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            <Route
+              path="/document-templates/:id"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <DocumentTemplateDetailsPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            <Route
+              path="/document-templates/:id/edit"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <EditDocumentTemplatePage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            <Route
+              path="/document-groups"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <DocumentGroupsPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            <Route
+              path="/document-groups/create"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <CreateDocumentGroupPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            <Route
+              path="/document-groups/:id"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <DocumentGroupDetailsPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            <Route
+              path="/document-groups/:id/edit"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <EditDocumentGroupPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            <Route
+              path="/manual-documents"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <ManualDocumentsPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            <Route
+              path="/manual-documents/upload"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <UploadManualDocumentPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            <Route
+              path="/manual-documents/:id"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <ManualDocumentDetailsPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            <Route
+              path="/manual-documents/:id/edit"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <EditManualDocumentPage />
                   </MainLayout>
                 </AuthProtection>
               }

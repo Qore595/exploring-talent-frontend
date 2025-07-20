@@ -1,0 +1,12 @@
+export { default as DocumentTemplatesPage } from './DocumentTemplatesPage';
+export { default as DocumentGroupsPage } from './DocumentGroupsPage';
+export { default as ManualDocumentsPage } from './ManualDocumentsPage';
+export { default as CreateDocumentTemplatePage } from './CreateDocumentTemplatePage';
+export { default as EditDocumentTemplatePage } from './EditDocumentTemplatePage';
+export { default as DocumentTemplateDetailsPage } from './DocumentTemplateDetailsPage';
+export { default as CreateDocumentGroupPage } from './CreateDocumentGroupPage';
+export { default as EditDocumentGroupPage } from './EditDocumentGroupPage';
+export { default as DocumentGroupDetailsPage } from './DocumentGroupDetailsPage';
+export { default as UploadManualDocumentPage } from './UploadManualDocumentPage';
+export { default as EditManualDocumentPage } from './EditManualDocumentPage';
+export { default as ManualDocumentDetailsPage } from './ManualDocumentDetailsPage';
