@@ -23,6 +23,9 @@ import LeaveTypesPage from "./pages/hr/leave/types";
 import LeaveRequestsPage from "./pages/hr/leave/requests";
 import DisabledEmployeesPage from "./pages/hr/employees/disabled";
 
+// HR Onboarding Pages
+import HROnboardingRouter from "./pages/hr-onboarding/HROnboardingRouter";
+
 // Auth Pages
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
@@ -867,6 +870,18 @@ const App = () => (
                 <AuthProtection >
                   <MainLayout>
                     <DisabledEmployeesPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            {/* HR Onboarding Routes */}
+            <Route
+              path="/hr-onboarding/*"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <HROnboardingRouter />
                   </MainLayout>
                 </AuthProtection>
               }

@@ -40,6 +40,9 @@ import {
   Send,
   Inbox,
   Archive,
+  ClipboardList,
+  FileCheck,
+  GraduationCap,
 } from 'lucide-react';
 
 // Define types
@@ -368,6 +371,87 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
               )}
             >
               Usage Tracking
+            </Link>
+          </div>
+        </div>
+
+        {/* HR Onboarding Menu */}
+        <div>
+          <button
+            onClick={() => toggleDropdown('HR Onboarding')}
+            className={cn(
+              "nav-item w-full justify-between",
+              location.pathname.startsWith('/hr-onboarding') && "active"
+            )}
+            aria-expanded={openDropdowns['HR Onboarding']}
+            aria-controls="submenu-hr-onboarding"
+          >
+            <div className="flex items-center">
+              <UserPlus className="nav-icon" />
+              <span className={cn("nav-text", isCollapsed && "collapsed")}>
+                HR Onboarding
+              </span>
+            </div>
+            {!isCollapsed && (
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 transition-transform duration-200",
+                  openDropdowns['HR Onboarding'] ? "rotate-180" : ""
+                )}
+              />
+            )}
+          </button>
+          <div
+            id="submenu-hr-onboarding"
+            className={cn(
+              "nav-dropdown",
+              openDropdowns['HR Onboarding'] && !isCollapsed ? "open" : "closed"
+            )}
+          >
+            <Link
+              to="/hr-onboarding/dashboard"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname === '/hr-onboarding' || location.pathname === '/hr-onboarding/dashboard' ? "active" : ""
+              )}
+            >
+              Dashboard
+            </Link>
+            <Link
+              to="/hr-onboarding/candidates"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/hr-onboarding/candidates') && "active"
+              )}
+            >
+              Candidates
+            </Link>
+            <Link
+              to="/hr-onboarding/tasks"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/hr-onboarding/tasks') && "active"
+              )}
+            >
+              Tasks
+            </Link>
+            <Link
+              to="/hr-onboarding/documents"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/hr-onboarding/documents') && "active"
+              )}
+            >
+              Documents
+            </Link>
+            <Link
+              to="/hr-onboarding/training"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/hr-onboarding/training') && "active"
+              )}
+            >
+              Training
             </Link>
           </div>
         </div>
