@@ -1,0 +1,263 @@
+/* Rich Text Editor Styles */
+.rich-text-editor {
+  @apply border rounded-md overflow-hidden shadow-sm;
+}
+
+/* Import Quill styles */
+@import 'react-quill/dist/quill.snow.css';
+
+.rich-text-editor .ql-toolbar {
+  @apply border-b border-gray-200 bg-gray-50;
+}
+
+.rich-text-editor .ql-container {
+  @apply border-0;
+}
+
+.rich-text-editor .ql-editor {
+  @apply min-h-[300px] p-4;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.rich-text-editor .ql-editor.ql-blank::before {
+  @apply text-gray-400 italic;
+}
+
+/* Variable highlighting */
+.ql-variable {
+  background-color: #e3f2fd !important;
+  color: #1976d2 !important;
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
+  font-weight: bold !important;
+  font-family: monospace !important;
+  font-size: 0.9em !important;
+}
+
+/* Toolbar customization */
+.rich-text-editor .ql-toolbar .ql-formats {
+  @apply mr-4;
+}
+
+.rich-text-editor .ql-toolbar .ql-picker {
+  @apply text-sm;
+}
+
+.rich-text-editor .ql-toolbar .ql-picker-label {
+  @apply border border-gray-300 rounded px-2 py-1 bg-white hover:bg-gray-50;
+}
+
+.rich-text-editor .ql-toolbar .ql-picker-options {
+  @apply border border-gray-300 rounded shadow-lg bg-white;
+}
+
+.rich-text-editor .ql-toolbar button {
+  @apply w-8 h-8 rounded hover:bg-gray-200 transition-colors;
+}
+
+.rich-text-editor .ql-toolbar button.ql-active {
+  @apply bg-blue-100 text-blue-600;
+}
+
+/* Font family dropdown */
+.ql-font .ql-picker-item[data-value="Arial"]::before { font-family: Arial; }
+.ql-font .ql-picker-item[data-value="Helvetica"]::before { font-family: Helvetica; }
+.ql-font .ql-picker-item[data-value="Times New Roman"]::before { font-family: "Times New Roman"; }
+.ql-font .ql-picker-item[data-value="Courier New"]::before { font-family: "Courier New"; }
+.ql-font .ql-picker-item[data-value="Verdana"]::before { font-family: Verdana; }
+.ql-font .ql-picker-item[data-value="Georgia"]::before { font-family: Georgia; }
+.ql-font .ql-picker-item[data-value="Palatino"]::before { font-family: Palatino; }
+.ql-font .ql-picker-item[data-value="Garamond"]::before { font-family: Garamond; }
+.ql-font .ql-picker-item[data-value="Bookman"]::before { font-family: Bookman; }
+.ql-font .ql-picker-item[data-value="Trebuchet MS"]::before { font-family: "Trebuchet MS"; }
+
+/* Font size dropdown */
+.ql-size .ql-picker-item[data-value="10px"]::before { content: '10px'; font-size: 10px; }
+.ql-size .ql-picker-item[data-value="12px"]::before { content: '12px'; font-size: 12px; }
+.ql-size .ql-picker-item[data-value="14px"]::before { content: '14px'; font-size: 14px; }
+.ql-size .ql-picker-item[data-value="16px"]::before { content: '16px'; font-size: 16px; }
+.ql-size .ql-picker-item[data-value="18px"]::before { content: '18px'; font-size: 18px; }
+.ql-size .ql-picker-item[data-value="20px"]::before { content: '20px'; font-size: 20px; }
+.ql-size .ql-picker-item[data-value="24px"]::before { content: '24px'; font-size: 24px; }
+.ql-size .ql-picker-item[data-value="28px"]::before { content: '28px'; font-size: 28px; }
+.ql-size .ql-picker-item[data-value="32px"]::before { content: '32px'; font-size: 32px; }
+.ql-size .ql-picker-item[data-value="36px"]::before { content: '36px'; font-size: 36px; }
+
+/* Table styles */
+.rich-text-editor .ql-editor table {
+  @apply border-collapse border border-gray-300 w-full;
+}
+
+.rich-text-editor .ql-editor table td,
+.rich-text-editor .ql-editor table th {
+  @apply border border-gray-300 p-2;
+}
+
+.rich-text-editor .ql-editor table th {
+  @apply bg-gray-100 font-semibold;
+}
+
+/* List styles */
+.rich-text-editor .ql-editor ol,
+.rich-text-editor .ql-editor ul {
+  @apply pl-6;
+}
+
+.rich-text-editor .ql-editor li {
+  @apply mb-1;
+}
+
+/* Link styles */
+.rich-text-editor .ql-editor a {
+  @apply text-blue-600 underline hover:text-blue-800;
+}
+
+/* Image styles */
+.rich-text-editor .ql-editor img {
+  @apply max-w-full h-auto rounded;
+}
+
+/* Blockquote styles */
+.rich-text-editor .ql-editor blockquote {
+  @apply border-l-4 border-gray-300 pl-4 italic text-gray-600 my-4;
+}
+
+/* Code styles */
+.rich-text-editor .ql-editor code {
+  @apply bg-gray-100 px-1 py-0.5 rounded text-sm font-mono;
+}
+
+.rich-text-editor .ql-editor pre {
+  @apply bg-gray-100 p-4 rounded overflow-x-auto;
+}
+
+.rich-text-editor .ql-editor pre code {
+  @apply bg-transparent p-0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .rich-text-editor .ql-toolbar {
+    @apply flex-wrap;
+  }
+  
+  .rich-text-editor .ql-toolbar .ql-formats {
+    @apply mr-2 mb-2;
+  }
+  
+  .rich-text-editor .ql-editor {
+    @apply min-h-[250px] p-3;
+  }
+}
+
+/* Focus styles */
+.rich-text-editor .ql-container.ql-snow {
+  @apply border-0;
+}
+
+.rich-text-editor:focus-within {
+  @apply ring-2 ring-blue-500 ring-opacity-50;
+}
+
+/* Placeholder styles */
+.rich-text-editor .ql-editor.ql-blank::before {
+  @apply text-gray-400 not-italic;
+  content: attr(data-placeholder);
+}
+
+/* Print styles */
+@media print {
+  .rich-text-editor .ql-toolbar {
+    @apply hidden;
+  }
+  
+  .rich-text-editor .ql-editor {
+    @apply border-0 p-0;
+  }
+  
+  .ql-variable {
+    background-color: #e3f2fd !important;
+    color: #1976d2 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* Custom scrollbar for editor */
+.rich-text-editor .ql-editor::-webkit-scrollbar {
+  @apply w-2;
+}
+
+.rich-text-editor .ql-editor::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded;
+}
+
+.rich-text-editor .ql-editor::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded hover:bg-gray-400;
+}
+
+/* Custom toolbar styling */
+.rich-text-editor .custom-toolbar {
+  @apply flex flex-wrap gap-2 p-3 border-b bg-gray-50 rounded-t-md;
+}
+
+.rich-text-editor .custom-toolbar .toolbar-group {
+  @apply flex gap-1;
+}
+
+.rich-text-editor .custom-toolbar .toolbar-separator {
+  @apply w-px h-6 bg-gray-300 mx-1;
+}
+
+/* Variable button styling */
+.rich-text-editor .variable-button {
+  @apply text-xs font-mono bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100;
+}
+
+/* Responsive toolbar */
+@media (max-width: 640px) {
+  .rich-text-editor .custom-toolbar {
+    @apply gap-1 p-2;
+  }
+
+  .rich-text-editor .custom-toolbar .toolbar-group {
+    @apply gap-0.5;
+  }
+}
+
+/* Tooltip styles for toolbar buttons */
+.rich-text-editor .ql-toolbar button:hover::after {
+  content: attr(title);
+  @apply absolute bg-gray-800 text-white text-xs px-2 py-1 rounded -mt-8 -ml-4 z-10;
+  white-space: nowrap;
+}
+
+/* Animation for variable highlighting */
+.ql-variable {
+  transition: all 0.2s ease-in-out;
+}
+
+.ql-variable:hover {
+  background-color: #bbdefb !important;
+  transform: scale(1.05);
+}
+
+/* Error states */
+.rich-text-editor.error {
+  @apply border-red-500;
+}
+
+.rich-text-editor.error .ql-toolbar {
+  @apply border-red-500;
+}
+
+/* Success states */
+.rich-text-editor.success {
+  @apply border-green-500;
+}
+
+.rich-text-editor.success .ql-toolbar {
+  @apply border-green-500;
+}

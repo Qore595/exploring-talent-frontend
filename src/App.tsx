@@ -97,6 +97,18 @@ import {
   ManualDocumentDetailsPage
 } from "./pages/documentation";
 
+// Email Template Pages
+import {
+  EmailTemplatesPage,
+  CreateEmailTemplatePage,
+  EditEmailTemplatePage,
+  EmailTemplateDetailsPage,
+  EmailManagementPage,
+  ReceivedEmailsPage,
+  SentEmailsPage,
+  EmailUsageTrackingPage
+} from "./pages/email-templates";
+
 // Feedback Page has been removed and integrated into ProfileDetailsPage
 
 // Landing Page
@@ -644,6 +656,96 @@ const App = () => (
                 <AuthProtection>
                   <MainLayout>
                     <EditManualDocumentPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            {/* Email Template Routes - For All Users */}
+            <Route
+              path="/email-templates"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <EmailTemplatesPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            <Route
+              path="/email-templates/create"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <CreateEmailTemplatePage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            <Route
+              path="/email-templates/:id"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <EmailTemplateDetailsPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            <Route
+              path="/email-templates/:id/edit"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <EditEmailTemplatePage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            {/* Email Management Routes - For All Users */}
+            <Route
+              path="/email-management"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <EmailManagementPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            <Route
+              path="/email-management/received"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <ReceivedEmailsPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            <Route
+              path="/email-management/sent"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <SentEmailsPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            <Route
+              path="/email-management/usage"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <EmailUsageTrackingPage />
                   </MainLayout>
                 </AuthProtection>
               }

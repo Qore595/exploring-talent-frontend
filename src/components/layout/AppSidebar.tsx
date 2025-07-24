@@ -36,6 +36,10 @@ import {
   BookOpen,
   FolderOpen,
   FileUp,
+  Mail,
+  Send,
+  Inbox,
+  Archive,
 } from 'lucide-react';
 
 // Define types
@@ -67,6 +71,11 @@ const IconMap: Record<string, React.ElementType> = {
   "fa-book-open": BookOpen,
   "fa-folder-open": FolderOpen,
   "fa-file-upload": FileUp,
+  "fa-mail": Mail,
+  "fa-envelope": Mail,
+  "fa-send": Send,
+  "fa-inbox": Inbox,
+  "fa-archive": Archive,
   // Add more icon mappings as needed
 };
 
@@ -285,6 +294,80 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
               )}
             >
               Manual Documents
+            </Link>
+          </div>
+        </div>
+
+        {/* Email Templates Menu */}
+        <div>
+          <button
+            onClick={() => toggleDropdown('Email Templates')}
+            className={cn(
+              "nav-item w-full justify-between",
+              (location.pathname.startsWith('/email-templates') ||
+               location.pathname.startsWith('/email-management') ||
+               location.pathname.startsWith('/email-history')) && "active"
+            )}
+            aria-expanded={openDropdowns['Email Templates']}
+            aria-controls="submenu-email-templates"
+          >
+            <div className="flex items-center">
+              <Mail className="nav-icon" />
+              <span className={cn("nav-text", isCollapsed && "collapsed")}>
+                Email Templates
+              </span>
+            </div>
+            {!isCollapsed && (
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 transition-transform duration-200",
+                  openDropdowns['Email Templates'] ? "rotate-180" : ""
+                )}
+              />
+            )}
+          </button>
+          <div
+            id="submenu-email-templates"
+            className={cn(
+              "nav-dropdown",
+              openDropdowns['Email Templates'] && !isCollapsed ? "open" : "closed"
+            )}
+          >
+            <Link
+              to="/email-templates"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/email-templates') && "active"
+              )}
+            >
+              Template Manager
+            </Link>
+            <Link
+              to="/email-management/received"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/email-management/received') && "active"
+              )}
+            >
+              Received Emails
+            </Link>
+            <Link
+              to="/email-management/sent"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/email-management/sent') && "active"
+              )}
+            >
+              Sent History
+            </Link>
+            <Link
+              to="/email-management/usage"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/email-management/usage') && "active"
+              )}
+            >
+              Usage Tracking
             </Link>
           </div>
         </div>
