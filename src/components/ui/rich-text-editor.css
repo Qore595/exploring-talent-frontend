@@ -1,10 +1,10 @@
+/* Import Quill styles */
+@import 'react-quill/dist/quill.snow.css';
+
 /* Rich Text Editor Styles */
 .rich-text-editor {
   @apply border rounded-md overflow-hidden shadow-sm;
 }
-
-/* Import Quill styles */
-@import 'react-quill/dist/quill.snow.css';
 
 .rich-text-editor .ql-toolbar {
   @apply border-b border-gray-200 bg-gray-50;

@@ -16,6 +16,8 @@ const branchRoutes = require('./routes/branchRoutes');
 const employeeRoleRoutes = require('./routes/employeeRoleRoutes');
 const employeeAuthRoutes = require('./routes/employeeAuthRoutes');
 const resumeRoutes = require('./routes/resumeRoutes');
+const benchResourceRoutes = require('./routes/benchResourceRoutes');
+const hotlistRoutes = require('./routes/hotlistRoutes');
 
 // Initialize express app
 const app = express();
@@ -435,6 +437,8 @@ app.use('/api/employee-roles', employeeRoleRoutes);
 app.use('/api', permissionRoutes); // This will register /api/permission-groups-with-categories
 app.use('/api/employee-auth', employeeAuthRoutes);
 app.use('/api/resumes', resumeRoutes);
+app.use('/api/bench-resources', benchResourceRoutes);
+app.use('/api/hotlists', hotlistRoutes);
 
 // Root route
 app.get('/', (req, res) => {
@@ -489,6 +493,21 @@ const startServer = async () => {
     setupEmployeeRoleAssociations();
     setupBranchAssociations();
     setupRefreshTokenAssociations();
+
+    // Setup new model associations
+    const { setupAssociations: setupBenchResourceAssociations } = require('./models/BenchResource');
+    const { setupAssociations: setupAssignmentAssociations } = require('./models/Assignment');
+    const { setupAssociations: setupBenchAlertAssociations } = require('./models/BenchAlert');
+    const { setupAssociations: setupHotlistAssociations } = require('./models/Hotlist');
+    const { setupAssociations: setupHotlistCandidateAssociations } = require('./models/HotlistCandidate');
+    const { setupAssociations: setupHotlistAnalyticsAssociations } = require('./models/HotlistAnalytics');
+
+    setupBenchResourceAssociations();
+    setupAssignmentAssociations();
+    setupBenchAlertAssociations();
+    setupHotlistAssociations();
+    setupHotlistCandidateAssociations();
+    setupHotlistAnalyticsAssociations();
 
     // Seed data if in development mode
     if (process.env.NODE_ENV === 'development') {

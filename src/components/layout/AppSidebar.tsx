@@ -43,6 +43,9 @@ import {
   ClipboardList,
   FileCheck,
   GraduationCap,
+  Workflow,
+  Plus,
+  BarChart,
 } from 'lucide-react';
 
 // Define types
@@ -79,6 +82,17 @@ const IconMap: Record<string, React.ElementType> = {
   "fa-send": Send,
   "fa-inbox": Inbox,
   "fa-archive": Archive,
+  // Bench Resources icons
+  "users": Users,
+  "user-check": UserCheck,
+  "workflow": Workflow,
+  "settings": Settings,
+  // Hotlist Management icons
+  "mail": Mail,
+  "plus": Plus,
+  "calendar": Calendar,
+  "bar-chart": BarChart,
+  "file-text": FileText,
   // Add more icon mappings as needed
 };
 
@@ -106,16 +120,28 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
   // Set initial dropdown states based on current route
   useEffect(() => {
     const newOpenDropdowns: Record<string, boolean> = {};
-    
+
+    // Handle dynamic menus from API
     sidebarMenus.forEach(menu => {
-      if (menu.sub_menus?.some(sub => 
-        location.pathname === sub.url || 
+      if (menu.sub_menus?.some(sub =>
+        location.pathname === sub.url ||
         (sub.url && location.pathname.startsWith(sub.url))
       )) {
         newOpenDropdowns[menu.menu] = true;
       }
     });
-    
+
+    // Handle static menus (Bench Resources, Hotlist Management, HR Onboarding)
+    if (location.pathname.startsWith('/bench-resources')) {
+      newOpenDropdowns['Bench Resources'] = true;
+    }
+    if (location.pathname.startsWith('/hotlists')) {
+      newOpenDropdowns['Hotlist Management'] = true;
+    }
+    if (location.pathname.startsWith('/hr-onboarding')) {
+      newOpenDropdowns['HR Onboarding'] = true;
+    }
+
     setOpenDropdowns(newOpenDropdowns);
   }, [location.pathname, sidebarMenus]);
 
@@ -452,6 +478,150 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
               )}
             >
               Training
+            </Link>
+          </div>
+        </div>
+
+        {/* Bench Resources Menu */}
+        <div>
+          <button
+            onClick={() => toggleDropdown('Bench Resources')}
+            className={cn(
+              "nav-item w-full justify-between",
+              location.pathname.startsWith('/bench-resources') && "active"
+            )}
+            aria-expanded={openDropdowns['Bench Resources']}
+            aria-controls="submenu-bench-resources"
+          >
+            <div className="flex items-center">
+              <Users className="nav-icon" />
+              <span className={cn("nav-text", isCollapsed && "collapsed")}>
+                Bench Resources
+              </span>
+            </div>
+            {!isCollapsed && (
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 transition-transform duration-200",
+                  openDropdowns['Bench Resources'] ? "rotate-180" : ""
+                )}
+              />
+            )}
+          </button>
+          <div
+            id="submenu-bench-resources"
+            className={cn(
+              "nav-dropdown",
+              openDropdowns['Bench Resources'] && !isCollapsed ? "open" : "closed"
+            )}
+          >
+            <Link
+              to="/bench-resources"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname === '/bench-resources' ? "active" : ""
+              )}
+            >
+              Available Resources
+            </Link>
+            <Link
+              to="/bench-resources/pipeline"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/bench-resources/pipeline') && "active"
+              )}
+            >
+              Status Pipeline
+            </Link>
+            <Link
+              to="/bench-resources/settings"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/bench-resources/settings') && "active"
+              )}
+            >
+              Auto-Enrollment Settings
+            </Link>
+          </div>
+        </div>
+
+        {/* Hotlist Management Menu */}
+        <div>
+          <button
+            onClick={() => toggleDropdown('Hotlist Management')}
+            className={cn(
+              "nav-item w-full justify-between",
+              location.pathname.startsWith('/hotlists') && "active"
+            )}
+            aria-expanded={openDropdowns['Hotlist Management']}
+            aria-controls="submenu-hotlist-management"
+          >
+            <div className="flex items-center">
+              <Mail className="nav-icon" />
+              <span className={cn("nav-text", isCollapsed && "collapsed")}>
+                Hotlist Management
+              </span>
+            </div>
+            {!isCollapsed && (
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 transition-transform duration-200",
+                  openDropdowns['Hotlist Management'] ? "rotate-180" : ""
+                )}
+              />
+            )}
+          </button>
+          <div
+            id="submenu-hotlist-management"
+            className={cn(
+              "nav-dropdown",
+              openDropdowns['Hotlist Management'] && !isCollapsed ? "open" : "closed"
+            )}
+          >
+            <Link
+              to="/hotlists"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname === '/hotlists' ? "active" : ""
+              )}
+            >
+              Dashboard
+            </Link>
+            <Link
+              to="/hotlists/create"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/hotlists/create') && "active"
+              )}
+            >
+              Create Hotlist
+            </Link>
+            <Link
+              to="/hotlists/scheduled"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/hotlists/scheduled') && "active"
+              )}
+            >
+              Scheduled Hotlists
+            </Link>
+            <Link
+              to="/hotlists/analytics"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/hotlists/analytics') && "active"
+              )}
+            >
+              Performance Analytics
+            </Link>
+            <Link
+              to="/hotlists/templates"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/hotlists/templates') && "active"
+              )}
+            >
+              Subject Templates
             </Link>
           </div>
         </div>

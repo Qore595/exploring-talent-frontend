@@ -161,6 +161,190 @@ exports.getEmployeeById = async (req, res) => {
   }
 };
 
+// Get employee profile with sidebar menus
+exports.getEmployeeProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const employee = await Employee.findByPk(id, {
+      include: [
+        {
+          model: Branch,
+          as: 'Branch',
+          attributes: ['id', 'name'],
+        },
+        {
+          model: Department,
+          as: 'Department',
+          attributes: ['id', 'name'],
+        },
+        {
+          model: Designation,
+          as: 'Designation',
+          attributes: ['id', 'name', 'short_code'],
+        },
+        {
+          model: Employee,
+          as: 'Manager',
+          attributes: ['id', 'employee_id', 'first_name', 'last_name'],
+        },
+      ],
+      attributes: { exclude: ['password'] },
+    });
+
+    if (!employee) {
+      return res.status(404).json({
+        success: false,
+        message: 'Employee not found',
+      });
+    }
+
+    // Generate sidebar menus based on role/permissions
+    // Get user role from employee data or default to 'employee'
+    const userRole = employee.role || 'employee';
+
+    // Define role-based menu visibility
+    const canAccessBenchResources = ['admin', 'bench_sales', 'account_manager', 'cio_cto'].includes(userRole);
+    const canAccessHotlists = ['admin', 'bench_sales', 'account_manager'].includes(userRole);
+    const canAccessSettings = ['admin', 'cio_cto'].includes(userRole);
+    const canAccessAnalytics = ['admin', 'bench_sales', 'account_manager', 'cio_cto', 'recruiter', 'hr'].includes(userRole);
+
+    const sidebarMenus = [];
+
+    // Bench Resources Menu
+    if (canAccessBenchResources) {
+      const benchResourcesSubMenus = [
+        {
+          id: 101,
+          sub_menu: 'Available Resources',
+          icon: 'user-check',
+          url: '/bench-resources',
+          lang_key: 'available_resources',
+          display_order: 1,
+          level: 2,
+          is_active: true,
+          permission_categories: []
+        },
+        {
+          id: 102,
+          sub_menu: 'Status Pipeline',
+          icon: 'workflow',
+          url: '/bench-resources/pipeline',
+          lang_key: 'status_pipeline',
+          display_order: 2,
+          level: 2,
+          is_active: true,
+          permission_categories: []
+        }
+      ];
+
+      // Add settings submenu only for authorized roles
+      if (canAccessSettings) {
+        benchResourcesSubMenus.push({
+          id: 103,
+          sub_menu: 'Auto-Enrollment Settings',
+          icon: 'settings',
+          url: '/bench-resources/settings',
+          lang_key: 'auto_enrollment_settings',
+          display_order: 3,
+          level: 2,
+          is_active: true,
+          permission_categories: []
+        });
+      }
+
+      sidebarMenus.push({
+        id: 1,
+        menu: 'Bench Resources',
+        icon: 'users',
+        url: null,
+        lang_key: 'bench_resources',
+        display_order: 10,
+        level: 1,
+        sub_menus: benchResourcesSubMenus
+      });
+    }
+
+    // Hotlist Management Menu
+    if (canAccessHotlists) {
+      const hotlistSubMenus = [
+        {
+          id: 201,
+          sub_menu: 'Create Hotlist',
+          icon: 'plus',
+          url: '/hotlists/create',
+          lang_key: 'create_hotlist',
+          display_order: 1,
+          level: 2,
+          is_active: true,
+          permission_categories: []
+        },
+        {
+          id: 202,
+          sub_menu: 'Scheduled Hotlists',
+          icon: 'calendar',
+          url: '/hotlists/scheduled',
+          lang_key: 'scheduled_hotlists',
+          display_order: 2,
+          level: 2,
+          is_active: true,
+          permission_categories: []
+        },
+        {
+          id: 204,
+          sub_menu: 'Subject Templates',
+          icon: 'file-text',
+          url: '/hotlists/templates',
+          lang_key: 'subject_templates',
+          display_order: 4,
+          level: 2,
+          is_active: true,
+          permission_categories: []
+        }
+      ];
+
+      // Add analytics submenu only for authorized roles
+      if (canAccessAnalytics) {
+        hotlistSubMenus.splice(2, 0, {
+          id: 203,
+          sub_menu: 'Performance Analytics',
+          icon: 'bar-chart',
+          url: '/hotlists/analytics',
+          lang_key: 'performance_analytics',
+          display_order: 3,
+          level: 2,
+          is_active: true,
+          permission_categories: []
+        });
+      }
+
+      sidebarMenus.push({
+        id: 2,
+        menu: 'Hotlist Management',
+        icon: 'mail',
+        url: null,
+        lang_key: 'hotlist_management',
+        display_order: 11,
+        level: 1,
+        sub_menus: hotlistSubMenus
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: employee,
+      sidebar_menus: sidebarMenus,
+    });
+  } catch (error) {
+    console.error('Error in getEmployeeProfile:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message,
+    });
+  }
+};
+
 // Create a new employee
 exports.createEmployee = async (req, res) => {
   try {

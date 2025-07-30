@@ -136,14 +136,12 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         </div>
 
         {/* Main Content Area */}
-        <main className="perfect-content">
-          <div className="mx-auto max-w-7xl">
-            <div className={cn(
-              "transition-all duration-300 ease-in-out",
-              isLoaded ? "animate-fade-in" : "opacity-0"
-            )}>
-              {children}
-            </div>
+        <main className="perfect-content !p-0">
+          <div className={cn(
+            "transition-all duration-300 ease-in-out h-full",
+            isLoaded ? "animate-fade-in" : "opacity-0"
+          )}>
+            {children}
           </div>
         </main>
       </div>

@@ -11,6 +11,9 @@ const { authenticate } = process.env.NODE_ENV === 'production'
 // Get all employees with pagination and filtering
 router.get('/', authenticate, employeeController.getEmployees);
 
+// Get employee profile with sidebar menus
+router.get('/profile/:id', authenticate, employeeController.getEmployeeProfile);
+
 // Get employee by ID
 router.get('/:id', authenticate, employeeController.getEmployeeById);
 

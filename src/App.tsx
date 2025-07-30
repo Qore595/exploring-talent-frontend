@@ -112,6 +112,21 @@ import {
   EmailUsageTrackingPage
 } from "./pages/email-templates";
 
+// Bench Resources Pages
+import BenchResourcesPage from "./pages/bench-resources/BenchResourcesPage";
+import StatusPipelinePage from "./pages/bench-resources/StatusPipelinePage";
+import AutoEnrollmentSettingsPage from "./pages/bench-resources/AutoEnrollmentSettingsPage";
+
+// Hotlist Management Pages
+import HotlistsPage from "./pages/hotlists/HotlistsPage";
+import CreateHotlistPage from "./pages/hotlists/CreateHotlistPage";
+import ScheduledHotlistsPage from "./pages/hotlists/ScheduledHotlistsPage";
+import PerformanceAnalyticsPage from "./pages/hotlists/PerformanceAnalyticsPage";
+import SubjectTemplatesPage from "./pages/hotlists/SubjectTemplatesPage";
+
+// Mock Permissions Provider
+import { MockPermissionsProvider } from "./hooks/useMockPermissions";
+
 // Feedback Page has been removed and integrated into ProfileDetailsPage
 
 // Landing Page
@@ -882,6 +897,106 @@ const App = () => (
                 <AuthProtection>
                   <MainLayout>
                     <HROnboardingRouter />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            {/* Bench Resources Routes */}
+            <Route
+              path="/bench-resources"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <MockPermissionsProvider>
+                      <BenchResourcesPage />
+                    </MockPermissionsProvider>
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+            <Route
+              path="/bench-resources/pipeline"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <MockPermissionsProvider>
+                      <StatusPipelinePage />
+                    </MockPermissionsProvider>
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+            <Route
+              path="/bench-resources/settings"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <MockPermissionsProvider>
+                      <AutoEnrollmentSettingsPage />
+                    </MockPermissionsProvider>
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            {/* Hotlist Management Routes */}
+            <Route
+              path="/hotlists"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <MockPermissionsProvider>
+                      <HotlistsPage />
+                    </MockPermissionsProvider>
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+            <Route
+              path="/hotlists/create"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <MockPermissionsProvider>
+                      <CreateHotlistPage />
+                    </MockPermissionsProvider>
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+            <Route
+              path="/hotlists/scheduled"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <MockPermissionsProvider>
+                      <ScheduledHotlistsPage />
+                    </MockPermissionsProvider>
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+            <Route
+              path="/hotlists/analytics"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <MockPermissionsProvider>
+                      <PerformanceAnalyticsPage />
+                    </MockPermissionsProvider>
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+            <Route
+              path="/hotlists/templates"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <MockPermissionsProvider>
+                      <SubjectTemplatesPage />
+                    </MockPermissionsProvider>
                   </MainLayout>
                 </AuthProtection>
               }
