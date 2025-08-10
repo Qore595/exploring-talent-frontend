@@ -46,6 +46,9 @@ import {
   Workflow,
   Plus,
   BarChart,
+  Calculator,
+  TrendingUp,
+  History,
 } from 'lucide-react';
 
 // Define types
@@ -140,6 +143,9 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
     }
     if (location.pathname.startsWith('/hr-onboarding')) {
       newOpenDropdowns['HR Onboarding'] = true;
+    }
+    if (location.pathname.startsWith('/margin-calculator')) {
+      newOpenDropdowns['Margin Calculator'] = true;
     }
 
     setOpenDropdowns(newOpenDropdowns);
@@ -478,6 +484,96 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
               )}
             >
               Training
+            </Link>
+          </div>
+        </div>
+
+        {/* Margin Calculator Menu */}
+        <div>
+          <button
+            onClick={() => toggleDropdown('Margin Calculator')}
+            className={cn(
+              "nav-item w-full justify-between",
+              location.pathname.startsWith('/margin-calculator') && "active"
+            )}
+            aria-expanded={openDropdowns['Margin Calculator']}
+            aria-controls="submenu-margin-calculator"
+          >
+            <div className="flex items-center">
+              <Calculator className="nav-icon" />
+              <span className={cn("nav-text", isCollapsed && "collapsed")}>
+                Margin Calculator
+              </span>
+            </div>
+            {!isCollapsed && (
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 transition-transform duration-200",
+                  openDropdowns['Margin Calculator'] ? "rotate-180" : ""
+                )}
+              />
+            )}
+          </button>
+          <div
+            id="submenu-margin-calculator"
+            className={cn(
+              "nav-dropdown",
+              openDropdowns['Margin Calculator'] && !isCollapsed ? "open" : "closed"
+            )}
+          >
+            <Link
+              to="/margin-calculator/dashboard"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname === '/margin-calculator' || location.pathname === '/margin-calculator/dashboard' ? "active" : ""
+              )}
+            >
+              Dashboard
+            </Link>
+            <Link
+              to="/margin-calculator/hourly"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/margin-calculator/hourly') && "active"
+              )}
+            >
+              Hourly Calculator
+            </Link>
+            <Link
+              to="/margin-calculator/w2-salary"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/margin-calculator/w2-salary') && "active"
+              )}
+            >
+              W2 Salary Calculator
+            </Link>
+            <Link
+              to="/margin-calculator/contractor"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/margin-calculator/contractor') && "active"
+              )}
+            >
+              1099/C2C Calculator
+            </Link>
+            <Link
+              to="/margin-calculator/approvals"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/margin-calculator/approvals') && "active"
+              )}
+            >
+              Approvals
+            </Link>
+            <Link
+              to="/margin-calculator/reports"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/margin-calculator/reports') && "active"
+              )}
+            >
+              Reports & Audit
             </Link>
           </div>
         </div>

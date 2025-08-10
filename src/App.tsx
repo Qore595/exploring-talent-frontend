@@ -84,6 +84,14 @@ import JobEditPage from "./pages/jobs/JobEditPage";
 // Profit Pages
 import ProfitCalculatorPage from "./pages/profit/ProfitCalculatorPage";
 
+// Margin Calculator Pages
+import MarginCalculatorDashboard from "./pages/margin-calculator/MarginCalculatorDashboard";
+import HourlyCalculatorPage from "./pages/margin-calculator/HourlyCalculatorPage";
+import W2SalaryCalculatorPage from "./pages/margin-calculator/W2SalaryCalculatorPage";
+import ContractorCalculatorPage from "./pages/margin-calculator/ContractorCalculatorPage";
+import ApprovalsPage from "./pages/margin-calculator/ApprovalsPage";
+import MarginReportsPage from "./pages/margin-calculator/ReportsPage";
+
 // Documentation Pages
 import {
   DocumentTemplatesPage,
@@ -529,6 +537,72 @@ const App = () => (
                 <AuthProtection >
                   <MainLayout>
                     <ProfitCalculatorPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            {/* Margin Calculator Routes */}
+            <Route
+              path="/margin-calculator"
+              element={<Navigate to="/margin-calculator/dashboard" replace />}
+            />
+            <Route
+              path="/margin-calculator/dashboard"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <MarginCalculatorDashboard />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+            <Route
+              path="/margin-calculator/hourly"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <HourlyCalculatorPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+            <Route
+              path="/margin-calculator/w2-salary"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <W2SalaryCalculatorPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+            <Route
+              path="/margin-calculator/contractor"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <ContractorCalculatorPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+            <Route
+              path="/margin-calculator/approvals"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <ApprovalsPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+            <Route
+              path="/margin-calculator/reports"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <MarginReportsPage />
                   </MainLayout>
                 </AuthProtection>
               }
