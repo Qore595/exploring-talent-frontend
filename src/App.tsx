@@ -132,6 +132,9 @@ import ScheduledHotlistsPage from "./pages/hotlists/ScheduledHotlistsPage";
 import PerformanceAnalyticsPage from "./pages/hotlists/PerformanceAnalyticsPage";
 import SubjectTemplatesPage from "./pages/hotlists/SubjectTemplatesPage";
 
+// Vendor Hub Pages
+import VendorHubRouter from "./pages/vendor-hub/VendorHubRouter";
+
 // Mock Permissions Provider
 import { MockPermissionsProvider } from "./hooks/useMockPermissions";
 
@@ -1071,6 +1074,18 @@ const App = () => (
                     <MockPermissionsProvider>
                       <SubjectTemplatesPage />
                     </MockPermissionsProvider>
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            {/* Vendor Hub Routes */}
+            <Route
+              path="/vendor-hub/*"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <VendorHubRouter />
                   </MainLayout>
                 </AuthProtection>
               }

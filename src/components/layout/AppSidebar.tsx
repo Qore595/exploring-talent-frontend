@@ -49,6 +49,8 @@ import {
   Calculator,
   TrendingUp,
   History,
+  Handshake,
+  Contact,
 } from 'lucide-react';
 
 // Define types
@@ -146,6 +148,9 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
     }
     if (location.pathname.startsWith('/margin-calculator')) {
       newOpenDropdowns['Margin Calculator'] = true;
+    }
+    if (location.pathname.startsWith('/vendor-hub')) {
+      newOpenDropdowns['Vendor Hub'] = true;
     }
 
     setOpenDropdowns(newOpenDropdowns);
@@ -637,6 +642,105 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
               )}
             >
               Auto-Enrollment Settings
+            </Link>
+          </div>
+        </div>
+
+        {/* Vendor Hub Menu */}
+        <div>
+          <button
+            onClick={() => toggleDropdown('Vendor Hub')}
+            className={cn(
+              "nav-item w-full justify-between",
+              location.pathname.startsWith('/vendor-hub') && "active"
+            )}
+            aria-expanded={openDropdowns['Vendor Hub']}
+            aria-controls="submenu-vendor-hub"
+          >
+            <div className="flex items-center">
+              <Handshake className="nav-icon" />
+              <span className={cn("nav-text", isCollapsed && "collapsed")}>
+                Vendor Hub
+              </span>
+            </div>
+            {!isCollapsed && (
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 transition-transform duration-200",
+                  openDropdowns['Vendor Hub'] ? "rotate-180" : ""
+                )}
+              />
+            )}
+          </button>
+          <div
+            id="submenu-vendor-hub"
+            className={cn(
+              "nav-dropdown",
+              openDropdowns['Vendor Hub'] && !isCollapsed ? "open" : "closed"
+            )}
+          >
+            <Link
+              to="/vendor-hub/dashboard"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname === '/vendor-hub' || location.pathname === '/vendor-hub/dashboard' ? "active" : ""
+              )}
+            >
+              Dashboard
+            </Link>
+            <Link
+              to="/vendor-hub/vendors"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/vendor-hub/vendors') && "active"
+              )}
+            >
+              Vendor Registry
+            </Link>
+            <Link
+              to="/vendor-hub/pocs"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/vendor-hub/pocs') && "active"
+              )}
+            >
+              PoC Management
+            </Link>
+            <Link
+              to="/vendor-hub/validation-reminders"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/vendor-hub/validation-reminders') && "active"
+              )}
+            >
+              Validation Reminders
+            </Link>
+            <Link
+              to="/vendor-hub/communication-logs"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/vendor-hub/communication-logs') && "active"
+              )}
+            >
+              Communication Logs
+            </Link>
+            <Link
+              to="/vendor-hub/reports"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/vendor-hub/reports') && "active"
+              )}
+            >
+              Reports & Analytics
+            </Link>
+            <Link
+              to="/vendor-hub/settings"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/vendor-hub/settings') && "active"
+              )}
+            >
+              Settings
             </Link>
           </div>
         </div>
