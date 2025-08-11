@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
+import VendorAuthProvider from "@/context/VendorAuthContext";
 import { NotificationProvider } from "@/context/NotificationContext";
 import MainLayout from "@/components/layout/MainLayout";
 import AuthProtection from "@/components/auth/AuthProtection";
@@ -135,6 +136,9 @@ import SubjectTemplatesPage from "./pages/hotlists/SubjectTemplatesPage";
 // Vendor Hub Pages
 import VendorHubRouter from "./pages/vendor-hub/VendorHubRouter";
 
+// Vendor Portal Pages
+import VendorPortalRouter from "./pages/vendor-portal/VendorPortalRouter";
+
 // Mock Permissions Provider
 import { MockPermissionsProvider } from "./hooks/useMockPermissions";
 
@@ -151,11 +155,12 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <NotificationProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+      <VendorAuthProvider>
+        <NotificationProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
             <Routes>
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
@@ -1091,12 +1096,16 @@ const App = () => (
               }
             />
 
+            {/* Vendor Portal Routes */}
+            <Route path="/vendor-portal/*" element={<VendorPortalRouter />} />
+
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-      </TooltipProvider>
-      </NotificationProvider>
+          </TooltipProvider>
+        </NotificationProvider>
+      </VendorAuthProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

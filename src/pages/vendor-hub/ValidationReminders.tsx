@@ -295,7 +295,7 @@ const ValidationReminders: React.FC = () => {
               ).length}
             </div>
             <p className="text-xs text-muted-foreground">
-              No response > 7 days
+              No response &gt; 7 days
             </p>
           </CardContent>
         </Card>

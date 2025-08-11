@@ -98,7 +98,7 @@ const AutoEnrollmentSettingsPage = () => {
   const availableRoles = [
     { id: 'bench_sales', label: 'Bench Sales', description: 'Sales team members' },
     { id: 'account_manager', label: 'Account Manager', description: 'Account management team' },
-    { id: 'cio_cto', label: 'CIO/CTO', label: 'Executive leadership' },
+    { id: 'cio_cto', label: 'CIO/CTO', description: 'Executive leadership' },
     { id: 'hr', label: 'HR', description: 'Human resources team' },
     { id: 'recruiter', label: 'Recruiter', description: 'Recruitment team' }
   ];
