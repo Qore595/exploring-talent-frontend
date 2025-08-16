@@ -139,6 +139,9 @@ import VendorHubRouter from "./pages/vendor-hub/VendorHubRouter";
 // Vendor Portal Pages
 import VendorPortalRouter from "./pages/vendor-portal/VendorPortalRouter";
 
+// Accounts Pages
+import AccountsRouter from "./pages/accounts/AccountsRouter";
+
 // Mock Permissions Provider
 import { MockPermissionsProvider } from "./hooks/useMockPermissions";
 
@@ -1091,6 +1094,18 @@ const App = () => (
                 <AuthProtection>
                   <MainLayout>
                     <VendorHubRouter />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            {/* Accounts Routes */}
+            <Route
+              path="/accounts/*"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <AccountsRouter />
                   </MainLayout>
                 </AuthProtection>
               }

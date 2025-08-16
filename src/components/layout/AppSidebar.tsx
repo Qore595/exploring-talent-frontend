@@ -51,6 +51,10 @@ import {
   History,
   Handshake,
   Contact,
+  CreditCard,
+  Receipt,
+  AlertTriangle,
+  BarChart3,
 } from 'lucide-react';
 
 // Define types
@@ -136,7 +140,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
       }
     });
 
-    // Handle static menus (Bench Resources, Hotlist Management, HR Onboarding)
+    // Handle static menus (Bench Resources, Hotlist Management, HR Onboarding, Accounts)
     if (location.pathname.startsWith('/bench-resources')) {
       newOpenDropdowns['Bench Resources'] = true;
     }
@@ -145,6 +149,9 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
     }
     if (location.pathname.startsWith('/hr-onboarding')) {
       newOpenDropdowns['HR Onboarding'] = true;
+    }
+    if (location.pathname.startsWith('/accounts')) {
+      newOpenDropdowns['Accounts'] = true;
     }
     if (location.pathname.startsWith('/margin-calculator')) {
       newOpenDropdowns['Margin Calculator'] = true;
@@ -822,6 +829,87 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
               )}
             >
               Subject Templates
+            </Link>
+          </div>
+        </div>
+
+        {/* Accounts */}
+        <div>
+          <button
+            onClick={() => toggleDropdown('Accounts')}
+            className={cn(
+              "nav-item w-full justify-between",
+              location.pathname.startsWith('/accounts') && "active"
+            )}
+            aria-expanded={openDropdowns['Accounts']}
+            aria-controls="submenu-accounts"
+          >
+            <div className="flex items-center">
+              <CreditCard className="nav-icon" />
+              <span className={cn("nav-text", isCollapsed && "collapsed")}>
+                Accounts
+              </span>
+            </div>
+            {!isCollapsed && (
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 transition-transform duration-200",
+                  openDropdowns['Accounts'] ? "rotate-180" : ""
+                )}
+              />
+            )}
+          </button>
+          <div
+            id="submenu-accounts"
+            className={cn(
+              "nav-dropdown",
+              openDropdowns['Accounts'] && !isCollapsed ? "open" : "closed"
+            )}
+          >
+            <Link
+              to="/accounts/invoices"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/accounts/invoices') && "active"
+              )}
+            >
+              Invoices
+            </Link>
+            <Link
+              to="/accounts/timesheets"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/accounts/timesheets') && "active"
+              )}
+            >
+              Timesheets
+            </Link>
+            <Link
+              to="/accounts/pto-management"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/accounts/pto-management') && "active"
+              )}
+            >
+              PTO Management
+            </Link>
+            <Link
+              to="/accounts/approvals"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/accounts/approvals') && "active"
+              )}
+            >
+              Approvals
+            </Link>
+            <Link
+              to="/accounts/overdue-dashboard"
+              className={cn(
+                "nav-dropdown-item",
+                location.pathname.startsWith('/accounts/overdue-dashboard') && "active"
+              )}
+            >
+              Overdue Dashboard
             </Link>
           </div>
         </div>
