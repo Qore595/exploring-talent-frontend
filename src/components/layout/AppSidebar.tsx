@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { motion, AnimatePresence } from 'framer-motion';
 import { SidebarMenu, SubMenu } from '@/services/employeeService';
+import { QuickLinksModal } from '@/components/ui/quick-links-modal';
 import {
   LayoutDashboard,
   Users,
@@ -55,6 +56,7 @@ import {
   Receipt,
   AlertTriangle,
   BarChart3,
+  Grid3X3,
 } from 'lucide-react';
 
 // Define types
@@ -122,7 +124,8 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
   const location = useLocation();
   const navigate = useNavigate();
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
-  
+  const [isQuickLinksOpen, setIsQuickLinksOpen] = useState(false);
+
   // Use isOpen prop instead of internal collapsed state for better synchronization
   const isCollapsed = !isOpen && !isMobile;
 
@@ -232,17 +235,37 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
             <span className="text-lg font-bold">QORE</span>
           )}
         </Link>
-        {!isMobile && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleSidebar}
-            className="h-8 w-8 flex-shrink-0"
-            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {/* Quick Links Button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsQuickLinksOpen(true)}
+                className="h-8 w-8 flex-shrink-0 quick-links-button"
+                aria-label="Quick Links"
+              >
+                <Grid3X3 size={18} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Quick Links</p>
+            </TooltipContent>
+          </Tooltip>
+
+          {!isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="h-8 w-8 flex-shrink-0"
+              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Navigation */}
@@ -1017,24 +1040,42 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
   // For mobile, render a sheet
   if (isMobile) {
     return (
-      <Sheet open={isOpen} onOpenChange={onOpenChange}>
-        <SheetContent side="left" className="w-72 p-0">
-          <div className="h-full">
-            {renderSidebarContent()}
-          </div>
-        </SheetContent>
-      </Sheet>
+      <>
+        <Sheet open={isOpen} onOpenChange={onOpenChange}>
+          <SheetContent side="left" className="w-72 p-0">
+            <div className="h-full">
+              {renderSidebarContent()}
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        {/* Quick Links Modal */}
+        <QuickLinksModal
+          isOpen={isQuickLinksOpen}
+          onClose={() => setIsQuickLinksOpen(false)}
+          sidebarMenus={sidebarMenus}
+        />
+      </>
     );
   }
 
   // For desktop, render a collapsible sidebar
   return (
-    <aside
-      className="h-screen w-full overflow-hidden"
-      aria-label="Sidebar navigation"
-    >
-      {renderSidebarContent()}
-    </aside>
+    <>
+      <aside
+        className="h-screen w-full overflow-hidden"
+        aria-label="Sidebar navigation"
+      >
+        {renderSidebarContent()}
+      </aside>
+
+      {/* Quick Links Modal */}
+      <QuickLinksModal
+        isOpen={isQuickLinksOpen}
+        onClose={() => setIsQuickLinksOpen(false)}
+        sidebarMenus={sidebarMenus}
+      />
+    </>
   );
 };
 

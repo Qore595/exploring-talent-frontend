@@ -125,6 +125,28 @@
   background: hsl(var(--card));
 }
 
+/* Quick Links Button Styling */
+.quick-links-button {
+  position: relative;
+  transition: all 200ms ease-in-out;
+}
+
+.quick-links-button:hover {
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+  transform: scale(1.05);
+}
+
+.quick-links-button:hover::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 8px;
+  background: linear-gradient(45deg, hsl(var(--primary)), hsl(var(--primary) / 0.5));
+  z-index: -1;
+  opacity: 0.2;
+}
+
 .sidebar-logo {
   display: flex;
   align-items: center;
