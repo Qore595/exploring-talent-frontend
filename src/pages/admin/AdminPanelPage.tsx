@@ -28,7 +28,12 @@ import {
   ChevronLeft,
   ChevronRight,
   MoreHorizontal,
-  Info
+  Info,
+  TrendingUp,
+  Zap,
+  Globe,
+  MonitorCheck,
+  Gauge
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -48,6 +53,24 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Pagination,
   PaginationContent,
@@ -325,7 +348,8 @@ const AdminPanelPage = () => {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="container mx-auto p-6 space-y-8 animate-fade-in">
       {/* Add Employee Dialog */}
       {showAddEmployeeDialog && (
         <Dialog open={showAddEmployeeDialog} onOpenChange={setShowAddEmployeeDialog}>
@@ -1065,39 +1089,58 @@ const AdminPanelPage = () => {
         </Dialog>
       )}
 
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Admin Panel</h1>
-          <p className="text-muted-foreground mt-2">
-            {adminUser
-              ? "Manage all aspects of the system with unrestricted access"
-              : managerOrHigher
-                ? "Manage organization settings and user accounts"
-                : "View system information and settings"}
-          </p>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          {adminUser && (
-            <Badge variant="outline" className="bg-primary/10 text-primary">
-              CEO Access
-            </Badge>
-          )}
-          {!adminUser && managerOrHigher && (
-            <Badge variant="outline" className="bg-blue-100 text-blue-800">
-              Manager Access
-            </Badge>
-          )}
-          {!adminUser && !managerOrHigher && marketingHeadOrHigher && (
-            <Badge variant="outline" className="bg-green-100 text-green-800">
-              Limited Access
-            </Badge>
-          )}
+      {/* Enhanced Header */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-recruit-primary/5 via-transparent to-recruit-secondary/5 rounded-xl" />
+        <div className="relative bg-card/60 backdrop-blur-sm border rounded-xl p-6 shadow-sm">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+            <div className="space-y-2">
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-recruit-primary to-recruit-secondary rounded-xl shadow-lg">
+                  <Shield className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-recruit-primary to-recruit-secondary bg-clip-text text-transparent">
+                    Admin Control Center
+                  </h1>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {adminUser
+                      ? "Complete system administration with full platform control"
+                      : managerOrHigher
+                        ? "Employee management and organizational settings oversight"
+                        : "System monitoring and essential analytics overview"}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+              <div className="flex items-center space-x-2">
+                {adminUser && (
+                  <Badge variant="outline" className="bg-gradient-to-r from-recruit-primary/10 to-recruit-secondary/10 text-recruit-primary border-recruit-primary/20">
+                    <Zap className="w-3 h-3 mr-1" />
+                    CEO Access
+                  </Badge>
+                )}
+                {!adminUser && managerOrHigher && (
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                    <MonitorCheck className="w-3 h-3 mr-1" />
+                    Manager Access
+                  </Badge>
+                )}
+                {!adminUser && !managerOrHigher && marketingHeadOrHigher && (
+                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                    <Globe className="w-3 h-3 mr-1" />
+                    Limited Access
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="bg-muted/50">
+        <TabsList className="inline-flex h-12 items-center justify-center rounded-xl bg-muted/30 p-1 text-muted-foreground backdrop-blur-sm border shadow-sm">
           <TabsTrigger value="overview" className="data-[state=active]:bg-background">
             <Shield className="h-4 w-4 mr-2" />
             Overview
@@ -1160,160 +1203,191 @@ const AdminPanelPage = () => {
           )}
         </TabsList>
 
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="col-span-3">
-              <CardHeader>
-                <CardTitle>Admin Quick Actions</CardTitle>
-                <CardDescription>
-                  Access all administrative functions from one place
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Button
-                    variant="outline"
-                    className="h-24 flex flex-col items-center justify-center"
-                    onClick={() => setActiveTab("employee-directory")}
-                  >
-                    <UserPlus className="h-8 w-8 mb-2" />
-                    <span>Manage Users</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="h-24 flex flex-col items-center justify-center"
-                    onClick={() => setActiveTab("location-management")}
-                  >
-                    <Building2 className="h-8 w-8 mb-2" />
-                    <span>Manage Locations</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="h-24 flex flex-col items-center justify-center"
-                    onClick={() => handleNavigate("/settings")}
-                  >
-                    <Settings className="h-8 w-8 mb-2" />
-                    <span>System Settings</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="h-24 flex flex-col items-center justify-center"
-                    onClick={() => handleNavigate("/dashboard")}
-                  >
-                    <BarChart3 className="h-8 w-8 mb-2" />
-                    <span>View Metrics</span>
-                  </Button>
+        {/* Enhanced Overview Tab */}
+        <TabsContent value="overview" className="space-y-6 animate-fade-in">
+          {/* Quick Actions Section */}
+          <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-card via-card to-muted/20">
+            <CardHeader className="pb-4">
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-recruit-primary to-recruit-secondary rounded-lg">
+                  <Zap className="h-5 w-5 text-white" />
                 </div>
-              </CardContent>
-            </Card>
+                <div>
+                  <CardTitle className="text-xl">Quick Actions</CardTitle>
+                  <CardDescription className="text-muted-foreground/80">
+                    Essential administrative functions at your fingertips
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Button
+                  variant="outline"
+                  className="group h-24 flex flex-col items-center justify-center bg-gradient-to-br from-background to-muted/30 border-2 hover:border-recruit-primary/30 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                  onClick={() => setActiveTab("employee-directory")}
+                >
+                  <UserPlus className="h-8 w-8 mb-2 text-recruit-primary group-hover:scale-110 transition-transform duration-200" />
+                  <span className="font-medium">Manage Users</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="group h-24 flex flex-col items-center justify-center bg-gradient-to-br from-background to-muted/30 border-2 hover:border-recruit-secondary/30 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                  onClick={() => setActiveTab("location-management")}
+                >
+                  <Building2 className="h-8 w-8 mb-2 text-recruit-secondary group-hover:scale-110 transition-transform duration-200" />
+                  <span className="font-medium">Manage Locations</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="group h-24 flex flex-col items-center justify-center bg-gradient-to-br from-background to-muted/30 border-2 hover:border-blue-400/30 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                  onClick={() => handleNavigate("/settings")}
+                >
+                  <Settings className="h-8 w-8 mb-2 text-blue-600 group-hover:scale-110 group-hover:rotate-90 transition-all duration-200" />
+                  <span className="font-medium">System Settings</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="group h-24 flex flex-col items-center justify-center bg-gradient-to-br from-background to-muted/30 border-2 hover:border-green-400/30 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                  onClick={() => handleNavigate("/dashboard")}
+                >
+                  <BarChart3 className="h-8 w-8 mb-2 text-green-600 group-hover:scale-110 transition-transform duration-200" />
+                  <span className="font-medium">View Analytics</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>User Management</CardTitle>
-                <CardDescription>
-                  Manage users and permissions
-                </CardDescription>
+          {/* Management Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-0 bg-gradient-to-br from-card to-blue-50/30">
+              <CardHeader className="pb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg">
+                    <Users className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">User Management</CardTitle>
+                    <CardDescription className="text-sm">
+                      Manage users and permissions
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-2">
                 <Button
                   variant="ghost"
-                  className="w-full justify-start"
+                  className="w-full justify-start hover:bg-blue-50 group/btn"
                   onClick={() => {
                     setActiveTab("employee-directory");
                     setShowAddEmployeeDialog(true);
                   }}
                 >
-                  <UserPlus className="h-4 w-4 mr-2" />
+                  <UserPlus className="h-4 w-4 mr-2 text-blue-600 group-hover/btn:scale-110 transition-transform" />
                   Add New User
                 </Button>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start"
+                  className="w-full justify-start hover:bg-blue-50 group/btn"
                   onClick={() => handleAction("Modify User Roles")}
                 >
-                  <Lock className="h-4 w-4 mr-2" />
+                  <Lock className="h-4 w-4 mr-2 text-blue-600 group-hover/btn:scale-110 transition-transform" />
                   Modify User Roles
                 </Button>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start"
+                  className="w-full justify-start hover:bg-blue-50 group/btn"
                   onClick={() => handleAction("Reset User Password")}
                 >
-                  <Lock className="h-4 w-4 mr-2" />
+                  <Lock className="h-4 w-4 mr-2 text-blue-600 group-hover/btn:scale-110 transition-transform" />
                   Reset User Password
                 </Button>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Organization</CardTitle>
-                <CardDescription>
-                  Manage company structure
-                </CardDescription>
+            <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-0 bg-gradient-to-br from-card to-green-50/30">
+              <CardHeader className="pb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg">
+                    <Building2 className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Organization</CardTitle>
+                    <CardDescription className="text-sm">
+                      Manage company structure
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-2">
                 <Button
                   variant="ghost"
-                  className="w-full justify-start"
+                  className="w-full justify-start hover:bg-green-50 group/btn"
                   onClick={() => setActiveTab("location-management")}
                 >
-                  <Building2 className="h-4 w-4 mr-2" />
+                  <Building2 className="h-4 w-4 mr-2 text-green-600 group-hover/btn:scale-110 transition-transform" />
                   Manage Locations
                 </Button>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start"
+                  className="w-full justify-start hover:bg-green-50 group/btn"
                   onClick={() => {
                     setActiveTab("location-management");
                     setShowAddDepartmentDialog(true);
                   }}
                 >
-                  <Users className="h-4 w-4 mr-2" />
+                  <Users className="h-4 w-4 mr-2 text-green-600 group-hover/btn:scale-110 transition-transform" />
                   Manage Departments
                 </Button>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start"
+                  className="w-full justify-start hover:bg-green-50 group/btn"
                   onClick={() => handleAction("Update Company Profile")}
                 >
-                  <Building2 className="h-4 w-4 mr-2" />
+                  <Building2 className="h-4 w-4 mr-2 text-green-600 group-hover/btn:scale-110 transition-transform" />
                   Update Company Profile
                 </Button>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>System Settings</CardTitle>
-                <CardDescription>
-                  Configure system-wide settings
-                </CardDescription>
+            <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-0 bg-gradient-to-br from-card to-purple-50/30">
+              <CardHeader className="pb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg">
+                    <Settings className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">System Settings</CardTitle>
+                    <CardDescription className="text-sm">
+                      Configure system-wide settings
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-2">
                 <Button
                   variant="ghost"
-                  className="w-full justify-start"
+                  className="w-full justify-start hover:bg-purple-50 group/btn"
                   onClick={() => handleNavigate("/settings")}
                 >
-                  <Settings className="h-4 w-4 mr-2" />
+                  <Settings className="h-4 w-4 mr-2 text-purple-600 group-hover/btn:scale-110 group-hover/btn:rotate-90 transition-all duration-200" />
                   General Settings
                 </Button>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start"
+                  className="w-full justify-start hover:bg-purple-50 group/btn"
                   onClick={() => handleAction("Manage Integrations")}
                 >
-                  <Database className="h-4 w-4 mr-2" />
+                  <Database className="h-4 w-4 mr-2 text-purple-600 group-hover/btn:scale-110 transition-transform" />
                   Manage Integrations
                 </Button>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start"
+                  className="w-full justify-start hover:bg-purple-50 group/btn"
                   onClick={() => handleAction("View System Logs")}
                 >
-                  <FileText className="h-4 w-4 mr-2" />
+                  <FileText className="h-4 w-4 mr-2 text-purple-600 group-hover/btn:scale-110 transition-transform" />
                   View System Logs
                 </Button>
               </CardContent>
@@ -2610,6 +2684,7 @@ const AdminPanelPage = () => {
           </Card>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 };

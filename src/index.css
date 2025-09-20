@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    --background: 250 33% 99%;
+    --background: 240 5% 96%; /* Softer off-white background */
     --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
@@ -34,7 +34,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 255 80% 75%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem; /* Slightly larger radius for a modern look */
 
     --sidebar-background: 260 30% 25%;
     --sidebar-foreground: 240 5.3% 90%;
@@ -94,6 +94,37 @@
 
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* --- TYPOGRAPHIC SCALE --- */
+  h1, .h1 {
+    @apply text-3xl font-bold tracking-tight;
+  }
+
+  h2, .h2 {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+
+  h3, .h3 {
+    @apply text-xl font-semibold tracking-tight;
+  }
+
+  h4, .h4 {
+    @apply text-lg font-semibold tracking-tight;
+  }
+
+  p, .p {
+    @apply leading-7;
+  }
+
+  .small {
+    @apply text-sm font-medium leading-none;
+  }
+
+  .muted {
+    @apply text-sm text-muted-foreground;
   }
 }
 
