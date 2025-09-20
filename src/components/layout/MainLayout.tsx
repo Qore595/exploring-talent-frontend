@@ -136,12 +136,14 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         </div>
 
         {/* Main Content Area */}
-        <main className="perfect-content !p-0">
+        <main className="perfect-content !p-0 bg-background/50">
           <div className={cn(
-            "transition-all duration-300 ease-in-out h-full",
+            "transition-all duration-300 ease-in-out h-full min-h-screen",
             isLoaded ? "animate-fade-in" : "opacity-0"
           )}>
-            {children}
+            <div className="p-6 space-y-6">
+              {children}
+            </div>
           </div>
         </main>
       </div>

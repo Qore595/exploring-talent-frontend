@@ -49,7 +49,11 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
 
   return (
     <>
-      <header className={`fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b ${isScrolled ? 'shadow-sm' : ''}`}>
+      <header className={`fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b transition-all duration-300 ${
+        isScrolled
+          ? 'shadow-lg shadow-black/5 border-border/50'
+          : 'border-transparent'
+      }`}>
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center">
@@ -58,12 +62,12 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
                   variant="ghost"
                   size="icon"
                   onClick={onMenuClick}
-                  className="mr-2"
+                  className="mr-2 hover:bg-accent/50 transition-colors duration-200"
                 >
                   <Menu className="h-5 w-5" />
                 </Button>
               )}
-              <Link to="/">
+              <Link to="/" className="transition-transform duration-200 hover:scale-105">
                 <Logo size={isMobile ? "sm" : "md"} />
               </Link>
             </div>
@@ -74,7 +78,7 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
                 variant="outline"
                 size="icon"
                 onClick={() => setIsTutorialOpen(true)}
-                className="text-primary hover:bg-primary/10 hover:text-primary"
+                className="text-primary hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all duration-200 hover:shadow-md hover:shadow-primary/20"
                 title="Watch Tutorial"
               >
                 <PlayCircle className="h-5 w-5" />
@@ -88,10 +92,12 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
               {user && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 md:h-10 md:w-10 rounded-full">
-                      <Avatar className="h-8 w-8 md:h-10 md:w-10">
+                    <Button variant="ghost" className="relative h-8 w-8 md:h-10 md:w-10 rounded-full hover:bg-accent/50 transition-all duration-200 hover:shadow-md">
+                      <Avatar className="h-8 w-8 md:h-10 md:w-10 ring-2 ring-transparent hover:ring-primary/20 transition-all duration-200">
                         <AvatarImage src={user.avatar} alt={user.name} />
-                        <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                        <AvatarFallback className="bg-gradient-to-br from-primary/20 to-secondary/20 text-foreground font-semibold">
+                          {user.name.charAt(0)}
+                        </AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
@@ -156,15 +162,15 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
             <DialogTitle>How to Use QORE</DialogTitle>
           </DialogHeader>
           <div className="aspect-video w-full h-[70vh] overflow-hidden rounded-md">
-            <iframe 
-              width="100%" 
-              height="100%" 
-              src="https://www.youtube.com/embed/SbmvnQRrXz0?si=tfD6wibxprtiacq7" 
-              title="QORE Tutorial Video" 
-              frameBorder="0" 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            <iframe
+              width="100%"
+              height="100%"
+              src="https://www.youtube.com/embed/SbmvnQRrXz0?si=tfD6wibxprtiacq7"
+              title="QORE Tutorial Video"
+              style={{ border: 'none' }}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
-              className="w-full h-full"
+              className="w-full h-full rounded-md"
             ></iframe>
           </div>
         </DialogContent>

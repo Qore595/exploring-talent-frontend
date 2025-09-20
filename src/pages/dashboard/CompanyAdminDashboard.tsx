@@ -1,10 +1,12 @@
 
-import { BarChart3, Users, ClipboardCheck, Award, DollarSign, TrendingUp, Percent, ArrowUpRight } from 'lucide-react';
+import { BarChart3, Users, ClipboardCheck, Award, DollarSign, TrendingUp, Percent, ArrowUpRight, Building2, Target, Calendar } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatsCard } from '@/components/ui/stats-card';
 import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
+
 import { MetricsTable } from '@/components/dashboard/MetricsTable';
+import { PageHeader } from '@/components/page-header';
+import { motion } from 'framer-motion';
 import {
   Area,
   AreaChart,
@@ -60,207 +62,246 @@ const positionProfitData = [
 
 const CompanyAdminDashboard = () => {
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-bold">Company Dashboard</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Overview of company-wide recruitment metrics and financial data
-        </p>
-      </div>
+    <div className="space-y-8">
+      <PageHeader
+        title="Company Dashboard"
+        description="Overview of company-wide recruitment metrics and financial performance"
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Company Overview' }
+        ]}
+      />
 
 
 
-      {/* Profit Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-muted-foreground">Total Profit</span>
-                <span className="text-lg font-bold">$87,500</span>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-green-600" />
-              </div>
-            </div>
-            <div className="mt-2">
-              <div className="flex items-center text-xs">
-                <span className="text-xs text-muted-foreground mr-1">YTD Profit</span>
-                <Badge variant="outline" className="bg-green-100 text-green-800">
-                  +12.5% from last year
-                </Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Key Performance Metrics */}
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <StatsCard
+          title="Total Profit"
+          value="$87,500"
+          description="Year-to-date profit"
+          icon={<TrendingUp className="h-5 w-5" />}
+          trend={{ value: 12.5, isPositive: true, label: "from last year" }}
+          variant="gradient"
+        />
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-muted-foreground">Client-to-Company</span>
-                <span className="text-lg font-bold">$65,000</span>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                <ArrowUpRight className="h-5 w-5 text-blue-600" />
-              </div>
-            </div>
-            <div className="mt-2">
-              <div className="flex items-center text-xs">
-                <span className="text-xs text-muted-foreground mr-1">Profit Margin</span>
-                <Badge variant="outline" className="bg-blue-100 text-blue-800">
-                  26% of client budget
-                </Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <StatsCard
+          title="Client-to-Company"
+          value="$65,000"
+          description="Revenue from client budgets"
+          icon={<ArrowUpRight className="h-5 w-5" />}
+          trend={{ value: 26, isPositive: true, label: "profit margin" }}
+          variant="elevated"
+        />
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-muted-foreground">Company-to-Candidate</span>
-                <span className="text-lg font-bold">$22,500</span>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-                <Percent className="h-5 w-5 text-purple-600" />
-              </div>
-            </div>
-            <div className="mt-2">
-              <div className="flex items-center text-xs">
-                <span className="text-xs text-muted-foreground mr-1">Average Split</span>
-                <Badge variant="outline" className="bg-purple-100 text-purple-800">
-                  20% company / 80% candidate
-                </Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        <StatsCard
+          title="Company-to-Candidate"
+          value="$22,500"
+          description="Candidate compensation split"
+          icon={<Percent className="h-5 w-5" />}
+          trend={{ value: 20, isPositive: true, label: "company share" }}
+          variant="default"
+        />
 
-
+        <StatsCard
+          title="Active Positions"
+          value="24"
+          description="Currently open positions"
+          icon={<Target className="h-5 w-5" />}
+          trend={{ value: 8, isPositive: true, label: "this month" }}
+          variant="minimal"
+        />
+      </motion.div>
 
       {/* Recruitment Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-muted-foreground">Total Employees</span>
-                <span className="text-lg font-bold">128</span>
-              </div>
-              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
-                <Users className="h-4 w-4 text-primary" />
-              </div>
-            </div>
-            <div className="mt-1">
-              <span className="text-xs text-muted-foreground">Across all teams</span>
-            </div>
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <StatsCard
+          title="Total Employees"
+          value="128"
+          description="Across all teams"
+          icon={<Users className="h-5 w-5" />}
+          variant="default"
+        />
+
+        <StatsCard
+          title="Monthly Hires"
+          value="24"
+          description="Successful placements"
+          icon={<Award className="h-5 w-5" />}
+          trend={{ value: 8, isPositive: true, label: "vs previous month" }}
+          variant="default"
+        />
+
+        <StatsCard
+          title="Monthly Revenue"
+          value="$110,000"
+          description="From placements"
+          icon={<DollarSign className="h-5 w-5" />}
+          trend={{ value: 28, isPositive: true, label: "growth" }}
+          variant="default"
+        />
+
+        <StatsCard
+          title="Active Screenings"
+          value="45"
+          description="In progress"
+          icon={<ClipboardCheck className="h-5 w-5" />}
+          trend={{ value: 12, isPositive: true, label: "this week" }}
+          variant="default"
+        />
+      </motion.div>
+
+      {/* Charts Section */}
+      <motion.div
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+        {/* Hiring Trends Chart */}
+        <Card variant="elevated">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              Hiring Trends
+            </CardTitle>
+            <CardDescription>Monthly screening, interview, and hiring metrics</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={hiringData}>
+                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                <XAxis dataKey="month" className="text-xs" />
+                <YAxis className="text-xs" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                  }}
+                />
+                <Legend />
+                <Area type="monotone" dataKey="screenings" stackId="1" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.6} />
+                <Area type="monotone" dataKey="interviews" stackId="1" stroke="hsl(var(--secondary))" fill="hsl(var(--secondary))" fillOpacity={0.6} />
+                <Area type="monotone" dataKey="hires" stackId="1" stroke="#10b981" fill="#10b981" fillOpacity={0.8} />
+              </AreaChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-muted-foreground">Monthly Hires</span>
-                <span className="text-lg font-bold">24</span>
-              </div>
-              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
-                <Award className="h-4 w-4 text-primary" />
-              </div>
-            </div>
-            <div className="mt-1 flex items-center text-xs">
-              <Badge variant="outline" className="bg-green-100 text-green-800 mr-2">
-                <ArrowUpRight className="h-3 w-3 mr-1" /> 8%
-              </Badge>
-              <span className="text-xs text-muted-foreground">vs previous month</span>
-            </div>
+        {/* Revenue & Profit Chart */}
+        <Card variant="elevated">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-green-600" />
+              Revenue & Profit
+            </CardTitle>
+            <CardDescription>Monthly revenue and profit trends</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={revenueData}>
+                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                <XAxis dataKey="month" className="text-xs" />
+                <YAxis className="text-xs" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                  }}
+                />
+                <Legend />
+                <Line type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={3} dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2, r: 4 }} />
+                <Line type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={3} dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }} />
+              </LineChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-muted-foreground">Monthly Revenue</span>
-                <span className="text-lg font-bold">$110,000</span>
-              </div>
-              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
-                <DollarSign className="h-4 w-4 text-primary" />
-              </div>
-            </div>
-            <div className="mt-1 flex items-center text-xs">
-              <Badge variant="outline" className="bg-green-100 text-green-800 mr-2">
-                <ArrowUpRight className="h-3 w-3 mr-1" /> 28%
-              </Badge>
-              <span className="text-xs text-muted-foreground">from placements</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-muted-foreground">Monthly Profit</span>
-                <span className="text-lg font-bold">$42,500</span>
-              </div>
-              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
-                <TrendingUp className="h-4 w-4 text-primary" />
-              </div>
-            </div>
-            <div className="mt-1 flex items-center text-xs">
-              <Badge variant="outline" className="bg-green-100 text-green-800 mr-2">
-                <ArrowUpRight className="h-3 w-3 mr-1" /> 15%
-              </Badge>
-              <span className="text-xs text-muted-foreground">38.6% margin</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      </motion.div>
 
       {/* Detailed Metrics Table with Filters */}
-      <MetricsTable />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.6 }}
+      >
+        <MetricsTable />
+      </motion.div>
 
       {/* Team Performance Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Team Performance</CardTitle>
-          <CardDescription>Hiring and revenue metrics by team</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4">Team</th>
-                  <th className="text-left py-3 px-4">Talent Scouts</th>
-                  <th className="text-left py-3 px-4">Hires</th>
-                  <th className="text-left py-3 px-4">Revenue</th>
-                  <th className="text-left py-3 px-4">Profit</th>
-                  <th className="text-left py-3 px-4">Margin</th>
-                  <th className="text-left py-3 px-4">Avg. Time to Hire</th>
-                </tr>
-              </thead>
-              <tbody>
-                {teamPerformance.map((team, i) => (
-                  <tr key={i} className="border-b hover:bg-muted/50">
-                    <td className="py-3 px-4 font-medium">{team.name}</td>
-                    <td className="py-3 px-4">{Math.floor(Math.random() * 5) + 3}</td>
-                    <td className="py-3 px-4">{team.hires}</td>
-                    <td className="py-3 px-4">${team.revenue.toLocaleString()}</td>
-                    <td className="py-3 px-4 text-green-600 font-medium">${team.profit.toLocaleString()}</td>
-                    <td className="py-3 px-4">{team.profitMargin.toFixed(1)}%</td>
-                    <td className="py-3 px-4">{Math.floor(Math.random() * 10) + 14} days</td>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.8 }}
+      >
+        <Card variant="elevated">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5 text-primary" />
+              Team Performance
+            </CardTitle>
+            <CardDescription>Hiring and revenue metrics by team</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border/50">
+                    <th className="text-left py-4 px-4 font-semibold text-foreground">Team</th>
+                    <th className="text-left py-4 px-4 font-semibold text-foreground">Talent Scouts</th>
+                    <th className="text-left py-4 px-4 font-semibold text-foreground">Hires</th>
+                    <th className="text-left py-4 px-4 font-semibold text-foreground">Revenue</th>
+                    <th className="text-left py-4 px-4 font-semibold text-foreground">Profit</th>
+                    <th className="text-left py-4 px-4 font-semibold text-foreground">Margin</th>
+                    <th className="text-left py-4 px-4 font-semibold text-foreground">Avg. Time to Hire</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+                </thead>
+                <tbody>
+                  {teamPerformance.map((team, i) => (
+                    <tr key={i} className="border-b border-border/30 hover:bg-muted/50 transition-colors duration-200">
+                      <td className="py-4 px-4 font-medium text-foreground">{team.name}</td>
+                      <td className="py-4 px-4 text-muted-foreground">{Math.floor(Math.random() * 5) + 3}</td>
+                      <td className="py-4 px-4">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                          {team.hires}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4 font-medium">${team.revenue.toLocaleString()}</td>
+                      <td className="py-4 px-4">
+                        <span className="text-green-600 font-semibold">${team.profit.toLocaleString()}</span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{team.profitMargin.toFixed(1)}%</span>
+                          <Progress
+                            value={team.profitMargin}
+                            className="w-16 h-2"
+                            indicatorVariant="success"
+                          />
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-muted-foreground">{Math.floor(Math.random() * 10) + 14} days</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
 
       {/* Position Profit Analysis */}
       <Card>
