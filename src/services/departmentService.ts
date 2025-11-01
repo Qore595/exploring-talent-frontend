@@ -145,7 +145,7 @@ export const departmentService = {
       const departmentId = typeof id === 'string' ? id.trim() : id;
 
       // Get the API base URL directly from environment variables to ensure it's correct
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://backend.exploring-talent.com/api';
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3013/api';
 
       // Construct the full URL for the DELETE request
       const fullUrl = `${apiBaseUrl}/departments/${departmentId}`;

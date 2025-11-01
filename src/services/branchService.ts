@@ -251,7 +251,7 @@ export const branchService = {
 
         // Try a direct fetch as fallback
         console.log('Attempting direct fetch as fallback...');
-        const apiBaseUrl = apiClient.defaults.baseURL || 'https://backend.exploring-talent.com/api';
+        const apiBaseUrl = apiClient.defaults.baseURL || 'http://localhost:3013/api';
         const fullUrl = `${apiBaseUrl}/branch/${formattedBranchId}/with-related-data`;
 
         try {
@@ -319,7 +319,7 @@ export const branchService = {
       const branchId = typeof id === 'string' ? id.trim() : id;
 
       // Get the API base URL directly from environment variables to ensure it's correct
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://backend.exploring-talent.com/api';
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3013/api';
 
       // Construct the full URL for the DELETE request
       const fullUrl = `${apiBaseUrl}/branches/${branchId}`;

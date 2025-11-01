@@ -91,7 +91,7 @@ export const employeeRoleService = {
       // Try direct fetch as primary method
       try {
         console.log('Attempting direct fetch for employee role creation...');
-        const apiBaseUrl = apiClient.defaults.baseURL || 'https://backend.exploring-talent.com/api';
+        const apiBaseUrl = apiClient.defaults.baseURL || 'http://localhost:3013/api';
         const fullUrl = `${apiBaseUrl}/employee-roles`;
 
         const token = localStorage.getItem('accessToken');

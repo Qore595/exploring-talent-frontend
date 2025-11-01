@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Get API base URL from environment variables
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://backend.exploring-talent.com/api'; // Updated port to match job API endpoint
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3013/api'; // Updated port to match job API endpoint
 console.log('API Base URL:', API_BASE_URL);
 
 // Warn if API URL is not set or using fallback
