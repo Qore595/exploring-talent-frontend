@@ -130,7 +130,7 @@ export default function fileUploadPlugin() {
                 originalName: req.file.originalname,
                 fileUrl: `/upload/${req.file.filename}`,
                 fullFileUrl: `http://localhost:8083/upload/${req.file.filename}`,
-                filePath: req.file.path,
+                filePath: `/upload/${req.file.filename}`, // Use relative path instead of absolute path
                 size: req.file.size,
                 mimetype: req.file.mimetype
               }
@@ -151,7 +151,7 @@ export default function fileUploadPlugin() {
               const stats = fs.statSync(filePath);
               return {
                 name: file,
-                path: filePath,
+                path: `/upload/${file}`, // Use relative path instead of absolute path
                 size: stats.size,
                 created: stats.birthtime,
                 modified: stats.mtime
@@ -173,6 +173,67 @@ export default function fileUploadPlugin() {
             res.end(JSON.stringify({
               success: false,
               message: 'Error listing files',
+              error: error.message
+            }));
+          }
+        } else {
+          next();
+        }
+      });
+
+      // API endpoint to get all resumes (temporary implementation for testing)
+      server.middlewares.use('/api/resumes/all', (req, res, next) => {
+        if (req.method === 'GET') {
+          try {
+            console.log('GET /api/resumes/all - Fetching all resumes');
+
+            // Read all files from the upload directory
+            const files = fs.readdirSync(UPLOAD_DIR);
+
+            // Filter for resume files (pdf, doc, docx)
+            const resumeFiles = files.filter(file => {
+              const ext = path.extname(file).toLowerCase();
+              return ['.pdf', '.doc', '.docx'].includes(ext);
+            });
+
+            // Map files to resume data format
+            const resumes = resumeFiles.map((file, index) => {
+              const filePath = path.join(UPLOAD_DIR, file);
+              const stats = fs.statSync(filePath);
+
+              // Extract employee ID from filename (format: employee_{id}_{timestamp}.ext)
+              const match = file.match(/employee_(.+?)_(\d+)/);
+              const employeeId = match ? match[1] : `emp-${index + 1}`;
+              const timestamp = match ? match[2] : stats.birthtimeMs;
+
+              return {
+                id: index + 1,
+                employeeId: employeeId,
+                name: `Employee ${employeeId}`,
+                email: `employee${employeeId}@example.com`,
+                phone: '',
+                resumeUrl: `/upload/${file}`,
+                fullResumeUrl: `http://localhost:8083/upload/${file}`,
+                uploadDate: new Date(parseInt(timestamp) || stats.birthtime).toISOString(),
+                createdAt: stats.birthtime.toISOString(),
+                updatedAt: stats.mtime.toISOString()
+              };
+            });
+
+            console.log(`Found ${resumes.length} resumes`);
+
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({
+              success: true,
+              message: 'Resumes retrieved successfully',
+              data: resumes
+            }));
+          } catch (error) {
+            console.error('Error fetching resumes:', error);
+            res.statusCode = 500;
+            res.end(JSON.stringify({
+              success: false,
+              message: 'Error fetching resumes',
               error: error.message
             }));
           }

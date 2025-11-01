@@ -225,6 +225,15 @@ exports.uploadResume = async (req, res) => {
       console.log('Full resume URL:', fullResumeUrl);
       console.log('File saved at:', filePath);
 
+      // Update the employee record with the resume URL
+      try {
+        await employee.update({ resume: resumeUrl });
+        console.log(`Employee ${employeeId} updated with resume URL: ${resumeUrl}`);
+      } catch (dbError) {
+        console.error(`Error updating employee record: ${dbError.message}`);
+        // Log the error but don't fail the upload since the file was saved successfully
+      }
+
       return res.status(200).json({
         success: true,
         message: 'Resume uploaded successfully',
@@ -234,7 +243,7 @@ exports.uploadResume = async (req, res) => {
           fileName,
           employeeId,
           originalFileName: resumeFile.name,
-          filePath: filePath,
+          filePath: resumeUrl, // Use relative path instead of absolute path
           uploadDir: UPLOAD_DIR,
           serverPort: 8081
         },
@@ -248,6 +257,53 @@ exports.uploadResume = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'An error occurred while uploading the resume',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
+// Get all resumes
+exports.getAllResumes = async (req, res) => {
+  try {
+    console.log('Fetching all resumes from database...');
+
+    // Find all employees that have a resume
+    const employees = await Employee.findAll({
+      where: {
+        resume: {
+          [require('sequelize').Op.ne]: null
+        }
+      },
+      attributes: ['id', 'employee_id', 'first_name', 'last_name', 'email', 'phone', 'resume', 'created_at', 'updated_at'],
+      order: [['updated_at', 'DESC']]
+    });
+
+    console.log(`Found ${employees.length} employees with resumes`);
+
+    // Transform the data to include full URLs
+    const resumes = employees.map(employee => ({
+      id: employee.id,
+      employeeId: employee.employee_id,
+      name: `${employee.first_name} ${employee.last_name || ''}`.trim(),
+      email: employee.email,
+      phone: employee.phone,
+      resumeUrl: employee.resume,
+      fullResumeUrl: employee.resume ? `http://localhost:8083${employee.resume}` : null,
+      uploadDate: employee.updated_at,
+      createdAt: employee.created_at
+    }));
+
+    return res.status(200).json({
+      success: true,
+      message: 'Resumes retrieved successfully',
+      data: resumes,
+      count: resumes.length
+    });
+  } catch (error) {
+    console.error('Get all resumes error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while retrieving resumes',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }

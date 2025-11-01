@@ -7,6 +7,9 @@ const { authenticate } = process.env.NODE_ENV === 'production'
   ? require('../middleware/auth')
   : require('../middleware/mockAuth');
 
+// Get all resumes (must be before /:employeeId to avoid route conflict)
+router.get('/all', authenticate, resumeController.getAllResumes);
+
 // Upload resume for an employee
 router.post('/:employeeId', authenticate, resumeController.uploadResume);
 

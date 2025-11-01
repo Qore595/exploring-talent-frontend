@@ -1,7 +1,6 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { Upload, FileUp, X, Check, FileText, Clock, Calendar, User, Briefcase, GraduationCap, Award, Tag, Eye, Download, Trash2, Phone, Mail, Info, MapPin, Building, ExternalLink } from 'lucide-react';
-import { mockUploadResumeToServer } from './mockUpload';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from "@/components/ui/input";
@@ -409,90 +408,87 @@ const ResumeUploadPage = () => {
     }
   }, [selectedLocationId]);
 
-  // Load saved resumes from localStorage on component mount or when user changes
+  // Load saved resumes from backend API on component mount
   useEffect(() => {
-    try {
-      // Check if we already have resumes in localStorage
-      const savedResumes = localStorage.getItem('uploadedResumes');
+    const loadResumesFromBackend = async () => {
+      try {
+        console.log('Fetching resumes from backend API...');
 
-      if (savedResumes) {
-        // Parse the saved resumes
-        const parsedResumes = JSON.parse(savedResumes);
-
-        // Process each resume to restore File objects and dates
-        const processedResumes = parsedResumes.map((resume: any) => {
-          // Create a new resume object with the correct date
-          const processedResume = {
-            ...resume,
-            uploadDate: new Date(resume.uploadDate)
-          };
-
-          // If we have file information but not a real File object
-          if (resume.file && typeof resume.file === 'object' && !(resume.file instanceof File)) {
-            // Create a placeholder File object
-            try {
-              // Create a new File object if possible
-              const fileData = new Uint8Array(10); // Empty placeholder
-              processedResume.file = new File([fileData], resume.file.name || 'resume.pdf', {
-                type: resume.file.type || 'application/pdf'
-              });
-            } catch (fileError) {
-              console.error('Error creating File object:', fileError);
-              // Keep the file info as is if we can't create a File object
-            }
-          }
-
-          return processedResume;
+        // Fetch resumes from the backend
+        const response = await fetch('/api/resumes/all', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         });
 
-        // Filter resumes based on user role
-        // Admin users (CEO, Branch Manager) can see all resumes
-        // Other users can only see their own uploads
-        if (isAdmin) {
-          // Ensure proper typing of status field
-          const typedProcessedResumes = processedResumes.map((resume: any) => ({
-            ...resume,
-            status: resume.status as 'processing' | 'completed' | 'error'
-          }));
-          setUploadedResumes(typedProcessedResumes as UploadedResume[]);
-        } else {
-          // Filter to only show resumes uploaded by the current user
-          const filteredResumes = processedResumes
-            .filter((resume: any) => resume.uploadedBy.id === currentUser.id)
-            .map((resume: any) => ({
-              ...resume,
-              status: resume.status as 'processing' | 'completed' | 'error'
-            }));
-          setUploadedResumes(filteredResumes as UploadedResume[]);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch resumes: ${response.status} ${response.statusText}`);
         }
 
-        console.log('Loaded', processedResumes.length, 'resumes from localStorage');
-      } else {
-        // If no resumes in localStorage, add sample data for demonstration
-        localStorage.setItem('uploadedResumes', JSON.stringify(sampleResumeData));
+        const result = await response.json();
+        console.log('Backend response:', result);
 
-        // Filter sample data based on user role
-        if (isAdmin) {
-          // Ensure the status field is properly typed
-          const typedSampleData = sampleResumeData.map(resume => ({
-            ...resume,
-            status: resume.status as 'processing' | 'completed' | 'error'
-          }));
-          setUploadedResumes(typedSampleData);
+        if (result.success && result.data && result.data.length > 0) {
+          // Transform backend data to match our UploadedResume interface
+          const backendResumes: UploadedResume[] = await Promise.all(
+            result.data.map(async (resume: any) => {
+              // Create a placeholder File object for the resume
+              const fileData = new Uint8Array(10);
+              const fileName = resume.resumeUrl ? resume.resumeUrl.split('/').pop() : 'resume.pdf';
+              const file = new File([fileData], fileName, { type: 'application/pdf' });
+
+              // Parse the resume if we have a URL (this is a simplified version)
+              // In a real app, you might want to fetch and parse the actual file
+              const parsedData: ParsedResume = {
+                name: resume.name || 'Unknown',
+                email: resume.email || '',
+                phone: resume.phone || '',
+                skills: [],
+                experience: [],
+                education: [],
+                summary: ''
+              };
+
+              return {
+                id: resume.id.toString(),
+                file: file,
+                parsedData: parsedData,
+                uploadDate: new Date(resume.uploadDate || resume.createdAt),
+                status: 'completed' as const,
+                uploadedBy: {
+                  id: resume.employeeId || 'unknown',
+                  name: resume.name || 'Unknown User',
+                  role: 'Employee',
+                  avatar: undefined
+                },
+                resumeUrl: resume.fullResumeUrl,
+                fileName: fileName,
+                serverFilePath: resume.resumeUrl
+              };
+            })
+          );
+
+          console.log(`Loaded ${backendResumes.length} resumes from backend`);
+          setUploadedResumes(backendResumes);
         } else {
-          const filteredSamples = sampleResumeData
-            .filter(resume => resume.uploadedBy.id === currentUser.id)
-            .map(resume => ({
-              ...resume,
-              status: resume.status as 'processing' | 'completed' | 'error'
-            }));
-          setUploadedResumes(filteredSamples);
+          console.log('No resumes found in backend, starting with empty list');
+          setUploadedResumes([]);
         }
+      } catch (error) {
+        console.error('Error loading resumes from backend:', error);
+        // On error, start with empty list instead of showing mock data
+        setUploadedResumes([]);
+        toast({
+          title: "Error Loading Resumes",
+          description: "Could not load resumes from the server. Please try again.",
+          variant: "destructive",
+        });
       }
-    } catch (error) {
-      console.error('Error loading saved resumes:', error);
-    }
-  }, [currentUser.id, isAdmin]);
+    };
+
+    loadResumesFromBackend();
+  }, []);
 
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -591,49 +587,8 @@ const ResumeUploadPage = () => {
             serverFilePath: uploadResult.data.filePath
           };
 
-          // Add to the uploaded resumes list
-          setUploadedResumes(prev => {
-            // Get all existing resumes from localStorage first
-            let allResumes: UploadedResume[] = [];
-            try {
-              const savedResumes = localStorage.getItem('uploadedResumes');
-              if (savedResumes) {
-                allResumes = JSON.parse(savedResumes).map((resume: any) => ({
-                  ...resume,
-                  uploadDate: new Date(resume.uploadDate)
-                }));
-              }
-            } catch (error) {
-              console.error('Error loading existing resumes:', error);
-            }
-
-            // Add the new resume
-            const updated = [...allResumes, newResume];
-
-            // Save all resumes to localStorage
-            try {
-              // Create a serializable version of the resume without the File object
-              const serializableResumes = updated.map(resume => ({
-                ...resume,
-                file: {
-                  name: resume.file.name,
-                  type: resume.file.type,
-                  size: resume.file.size,
-                },
-                uploadDate: resume.uploadDate.toISOString(),
-              }));
-              localStorage.setItem('uploadedResumes', JSON.stringify(serializableResumes));
-            } catch (error) {
-              console.error('Error saving resumes to localStorage:', error);
-            }
-
-            // Return only the resumes this user should see based on role
-            if (isAdmin) {
-              return updated;
-            } else {
-              return updated.filter(resume => resume.uploadedBy.id === currentUser.id);
-            }
-          });
+          // Add to the uploaded resumes list (no localStorage needed, data is in backend)
+          setUploadedResumes(prev => [...prev, newResume]);
         } catch (uploadError) {
           console.error('Error uploading file to server:', uploadError);
           toast({
@@ -657,7 +612,7 @@ const ResumeUploadPage = () => {
               </p>
             )}
             <p className="text-xs text-muted-foreground">Timestamp: {new Date().toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground">Files saved to server at: C:\Users\pitti\Downloads\QORE-main\upload</p>
+            <p className="text-xs text-muted-foreground">Files saved to server successfully</p>
           </div>
         ),
       });
@@ -811,7 +766,7 @@ const ResumeUploadPage = () => {
             originalName: file.name,
             fileUrl: fileUrl,
             fullFileUrl: fileUrl,
-            filePath: `C:\\Users\\pitti\\Downloads\\QORE-main\\upload\\${fileName}`,
+            filePath: `/upload/${fileName}`,
             size: file.size,
             mimetype: file.type
           }
@@ -897,27 +852,8 @@ const ResumeUploadPage = () => {
             serverFilePath: uploadResult.data.filePath
           };
 
-          // Add to the uploaded resumes list
-          const updatedResumes = [...uploadedResumes, newResume];
-          setUploadedResumes(updatedResumes as UploadedResume[]);
-
-          // Save to localStorage for persistence
-          try {
-            // We need to create a serializable version of the resume without the File object
-            const serializableResumes = updatedResumes.map(resume => ({
-              ...resume,
-              file: {
-                name: resume.file.name,
-                type: resume.file.type,
-                size: resume.file.size,
-              },
-              uploadDate: resume.uploadDate.toISOString(),
-            }));
-            localStorage.setItem('uploadedResumes', JSON.stringify(serializableResumes));
-            console.log('Saved resumes to localStorage');
-          } catch (storageError) {
-            console.error('Error saving to localStorage:', storageError);
-          }
+          // Add to the uploaded resumes list (no localStorage needed, data is in backend)
+          setUploadedResumes(prev => [...prev, newResume]);
 
         } catch (processError) {
           console.error('Error processing file:', processError);
@@ -955,75 +891,42 @@ const ResumeUploadPage = () => {
     const resume = uploadedResumes.find(r => r.id === id);
     if (!resume) return;
 
-    // Always use the specific PDF file
-    const fileName = 'pitti_sunil_kumar.pdf';
-    const fileUrl = `./upload/${fileName}`;
-    
+    // Use the actual resume data from the backend
+    const fileName = resume.fileName || 'resume.pdf';
+    const fileUrl = resume.resumeUrl || resume.serverFilePath || `/upload/${fileName}`;
+
     // Create a download link
     const a = document.createElement('a');
     a.href = fileUrl;
     a.download = fileName;
-    
+
     // Append to body, trigger download, and remove
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    
+
     // Show success message
     toast({
       title: "Download Started",
       description: `Downloading ${fileName}`,
     });
-    
-    console.log(`Attempted to download file from: ${fileUrl}`);
+
+    console.log(`Downloading file from: ${fileUrl}`);
   };
 
   // Function to clear all resumes
   const clearAllResumes = () => {
     if (confirm('Are you sure you want to remove all uploaded resumes? This action cannot be undone.')) {
-      if (isAdmin) {
-        // Admin can clear all resumes
-        setUploadedResumes([]);
-        localStorage.removeItem('uploadedResumes');
+      // Note: This only clears the frontend display
+      // In a real implementation, you would call a backend API to delete the resumes
+      setUploadedResumes([]);
 
-        toast({
-          title: "All Resumes Removed",
-          description: "All resumes have been cleared from the system",
-        });
-      } else {
-        // Non-admin users can only clear their own resumes
-        // Get all resumes from localStorage
-        let allResumes: UploadedResume[] = [];
-        try {
-          const savedResumes = localStorage.getItem('uploadedResumes');
-          if (savedResumes) {
-            allResumes = JSON.parse(savedResumes).map((resume: any) => ({
-              ...resume,
-              uploadDate: new Date(resume.uploadDate)
-            }));
-          }
-        } catch (error) {
-          console.error('Error loading existing resumes:', error);
-        }
-
-        // Filter out the current user's resumes
-        const updatedResumes = allResumes.filter(resume => resume.uploadedBy.id !== currentUser.id);
-
-        // Save updated list to localStorage
-        try {
-          localStorage.setItem('uploadedResumes', JSON.stringify(updatedResumes));
-        } catch (error) {
-          console.error('Error saving resumes to localStorage:', error);
-        }
-
-        // Clear the user's view
-        setUploadedResumes([]);
-
-        toast({
-          title: "Your Resumes Removed",
-          description: "All resumes uploaded by you have been cleared",
-        });
-      }
+      toast({
+        title: isAdmin ? "All Resumes Removed" : "Your Resumes Removed",
+        description: isAdmin
+          ? "All resumes have been cleared from the display"
+          : "All resumes uploaded by you have been cleared from the display",
+      });
     }
   };
 
@@ -1073,46 +976,9 @@ const ResumeUploadPage = () => {
 
     try {
       console.log('Viewing resume:', resume);
-      
-      // SPECIAL HANDLING: For any resume - use the specific file requested by the user
       console.log('Processing resume request with ID:', id);
       console.log('Resume metadata:', resume);
-      
-      // Try multiple approaches to make this work
-      // 1. First try the original path as specified
-      // 2. Then try with path adjusted for public directory
-      // 3. Try with the file we placed in public/upload
-      
-      // The user specifically mentioned this path
-      let pdfPath = './upload/pitti_sunil_kumar.pdf';
-      
-      // Since we're in development and we placed a file in public/upload
-      // we can also try this path that would work in a Create React App or Next.js environment
-      if (window.location.pathname.includes('resume')) {
-        pdfPath = '/upload/pitti_sunil_kumar.pdf';
-      }
-      
-      console.log('Using PDF path:', pdfPath);
-      console.log('Current origin:', window.location.origin);
-      
-      // Determine the full path for logging
-      const fullPath = pdfPath.startsWith('http') 
-        ? pdfPath 
-        : new URL(pdfPath.startsWith('./') ? pdfPath.substring(1) : pdfPath, window.location.origin).href;
-      
-      console.log('Full PDF path would be:', fullPath);
-      
-      // Set the path and open the viewer
-      setPdfServerPath(pdfPath);
-      setSelectedPdfFile(null);
-      setPdfViewerOpen(true);
-      
-      toast({
-        title: "Opening PDF",
-        description: "Loading resume from server",
-      });
-      return;
-      
+
       // Check if we have a server file path available
       if (resume.serverFilePath || resume.resumeUrl) {
         const filePath = resume.resumeUrl || resume.serverFilePath || '';
