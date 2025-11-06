@@ -9,12 +9,31 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8083,
     proxy: {
-      '/api': {
-        target: 'http://localhost:8083',
+      // Proxy /api/users/count to backend on port 3013 (MUST be before general /api proxy)
+      '/api/users/count': {
+        target: 'http://localhost:3013',
         changeOrigin: true,
+        secure: false,
       },
+      // Proxy resume API requests to the backend server on port 8081
+      '/api/resumes': {
+        target: 'http://localhost:8081',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => {
+          console.log('Proxying resume API request:', path);
+          return path;
+        }
+      },
+      // Proxy other API requests to the main backend on port 3000
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
+      // Serve uploaded files from the backend server
       '/upload': {
-        target: 'http://localhost:8083',
+        target: 'http://localhost:8081',
         changeOrigin: true,
       },
       '/list-uploads': {

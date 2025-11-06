@@ -41,10 +41,10 @@ const storage = multer.diskStorage({
     const employeeId = req.employeeId || 'unknown';
     console.log('Employee ID for file naming:', employeeId);
 
-    // Generate a unique filename with employee ID and timestamp
-    const timestamp = Date.now();
+    // Generate filename with just employee ID (no timestamp)
+    // Format: employee_{uniqueNumber}.{extension}
     const fileExtension = path.extname(file.originalname);
-    cb(null, `employee_${employeeId}_${timestamp}${fileExtension}`);
+    cb(null, `employee_${employeeId}${fileExtension}`);
   }
 });
 
@@ -117,8 +117,13 @@ export default function fileUploadPlugin() {
               return;
             }
 
-            console.log('File uploaded successfully:', req.file);
-            console.log('File saved to:', req.file.path);
+            console.log('File uploaded successfully:', {
+              filename: req.file.filename,
+              originalname: req.file.originalname,
+              size: req.file.size,
+              mimetype: req.file.mimetype
+            });
+            console.log('File saved to:', `/upload/${req.file.filename}`);
 
             // Return success response
             res.setHeader('Content-Type', 'application/json');
@@ -130,7 +135,7 @@ export default function fileUploadPlugin() {
                 originalName: req.file.originalname,
                 fileUrl: `/upload/${req.file.filename}`,
                 fullFileUrl: `http://localhost:8083/upload/${req.file.filename}`,
-                filePath: `/upload/${req.file.filename}`, // Use relative path instead of absolute path
+                filePath: `/upload/${req.file.filename}`,
                 size: req.file.size,
                 mimetype: req.file.mimetype
               }

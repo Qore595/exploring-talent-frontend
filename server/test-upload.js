@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Use the same upload directory as in the server
-const uploadPath = 'C:\\Users\\pitti\\Downloads\\QORE-main\\upload';
+const uploadPath = path.join(__dirname, '..', 'upload');
 
 // Create the upload directory if it doesn't exist
 if (!fs.existsSync(uploadPath)) {

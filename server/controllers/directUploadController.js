@@ -4,7 +4,7 @@ const { promisify } = require('util');
 const writeFile = promisify(fs.writeFile);
 
 // Define the upload directory
-const UPLOAD_DIR = 'C:\\Users\\pitti\\Downloads\\QORE-main\\upload';
+const UPLOAD_DIR = path.join(__dirname, '..', '..', 'upload');
 
 // Function to ensure a directory exists
 const ensureDirectoryExists = async (dirPath) => {

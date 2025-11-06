@@ -57,7 +57,7 @@ app.use(fileUpload({
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Use absolute path for the upload directory to ensure it works correctly
-const uploadPath = 'C:\\Users\\pitti\\Downloads\\QORE-main\\upload';
+const uploadPath = path.join(__dirname, '..', 'upload');
 
 // Serve files from the upload directory
 app.use('/upload', express.static(uploadPath));
@@ -251,13 +251,13 @@ app.post('/direct-upload', (req, res) => {
       });
     }
 
-    // Get user ID from request body
-    const userId = req.body.userId || req.body.employeeId;
+    // Get user ID from request body or query parameters
+    const userId = req.query.employeeId || req.body.userId || req.body.employeeId;
     
     if (!userId) {
       return res.status(400).json({
         success: false,
-        message: 'User ID is required for file upload. Please provide userId or employeeId in the request.',
+        message: 'User ID is required for file upload. Please provide employeeId in the request.',
       });
     }
 
@@ -340,7 +340,7 @@ app.post('/direct-upload', (req, res) => {
 
             // Generate URL for the file
             const fileUrl = `/upload/${fileName}`;
-            const fullFileUrl = `http://localhost:8083${fileUrl}`;            return res.status(200).json({
+            const fullFileUrl = `http://localhost:3013${fileUrl}`;            return res.status(200).json({
               success: true,
               message: 'Resume uploaded successfully (alternative method)',
               data: {
@@ -385,7 +385,7 @@ app.post('/direct-upload', (req, res) => {
 
       // Generate URL for the file
       const fileUrl = `/upload/${fileName}`;
-      const fullFileUrl = `http://localhost:8083${fileUrl}`;      return res.status(200).json({
+      const fullFileUrl = `http://localhost:3013${fileUrl}`;      return res.status(200).json({
         success: true,
         message: 'Resume uploaded successfully',
         data: {
@@ -440,6 +440,107 @@ app.use('/api/resumes', resumeRoutes);
 app.use('/api/bench-resources', benchResourceRoutes);
 app.use('/api/hotlists', hotlistRoutes);
 
+// Add users count endpoint with unique random number generation
+app.get('/api/users/count', async (req, res) => {
+  try {
+    const { User } = require('./models/User');
+    const { Employee } = require('./models/Employee');
+    const { Op } = require('sequelize');
+
+    // Build query filters based on query parameters
+    const filters = {};
+    if (req.query.is_active !== undefined) {
+      filters.is_active = req.query.is_active === 'true';
+    }
+    if (req.query.user_type) {
+      filters.user_type = req.query.user_type;
+    }
+    if (req.query.employee_id) {
+      filters.employee_id = req.query.employee_id;
+    }
+    if (req.query.search) {
+      filters[Op.or] = [
+        { first_name: { [Op.like]: `%${req.query.search}%` } },
+        { last_name: { [Op.like]: `%${req.query.search}%` } },
+        { email: { [Op.like]: `%${req.query.search}%` } }
+      ];
+    }
+
+    // Get count of users matching filters
+    const count = await User.count({ where: filters });
+
+    // Generate a unique random number (6-digit: 100000-999999)
+    let uniqueRandomNumber = null;
+    let attempts = 0;
+    const maxAttempts = 100;
+
+    while (attempts < maxAttempts && !uniqueRandomNumber) {
+      attempts++;
+      
+      // Generate a random 6-digit number
+      const randomNum = Math.floor(100000 + Math.random() * 900000);
+
+      // Check if this number exists as a user ID
+      const userExists = await User.findOne({
+        where: {
+          [Op.or]: [
+            { id: randomNum },
+            { employee_id: randomNum }
+          ]
+        }
+      });
+
+      // Check if this number exists in employees table
+      const employeeExists = await Employee.findOne({
+        where: {
+          [Op.or]: [
+            { id: randomNum },
+            { employee_id: randomNum.toString() }
+          ]
+        }
+      });
+
+      // If the number doesn't exist in either table, we have a unique number
+      if (!userExists && !employeeExists) {
+        uniqueRandomNumber = randomNum;
+      }
+    }
+
+    // If we couldn't generate a unique number after max attempts, return error
+    if (!uniqueRandomNumber) {
+      return res.status(500).json({
+        success: false,
+        message: 'Could not generate a unique random number after ' + maxAttempts + ' attempts',
+        data: {
+          count,
+          attempts,
+          filters: req.query
+        }
+      });
+    }
+
+    // Return success response with count and unique random number
+    res.status(200).json({
+      success: true,
+      message: 'Users count retrieved successfully with unique random number',
+      data: {
+        count,
+        uniqueRandomNumber,
+        attempts,
+        filters: req.query
+      }
+    });
+
+  } catch (error) {
+    console.error('Error in /api/users/count:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while retrieving users count',
+      error: error.message
+    });
+  }
+});
+
 // Root route
 app.get('/', (req, res) => {
   res.json({
@@ -459,7 +560,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 8081; // Changed to avoid conflict with frontend port
+const PORT = process.env.PORT || 3013; // Backend port as specified by user
 
 // Test database connection and sync models
 const startServer = async () => {

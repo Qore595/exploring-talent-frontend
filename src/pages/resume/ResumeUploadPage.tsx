@@ -712,18 +712,46 @@ const ResumeUploadPage = () => {
       });
       console.log('Employee ID:', employeeId);
 
+      // First, get a unique random number from the API
+      console.log('Fetching unique random number from API...');
+      let uniqueNumber: number;
+      
+      try {
+        const countResponse = await fetch('/api/users/count', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!countResponse.ok) {
+          throw new Error(`Failed to get unique number: ${countResponse.status}`);
+        }
+
+        const countData = await countResponse.json();
+        console.log('API response:', countData);
+
+        if (!countData.success || !countData.data?.uniqueRandomNumber) {
+          throw new Error('No unique number received from API');
+        }
+
+        uniqueNumber = countData.data.uniqueRandomNumber;
+        console.log('Got unique random number:', uniqueNumber);
+      } catch (apiError) {
+        console.error('Error getting unique number:', apiError);
+        throw new Error('Failed to get unique number for file naming');
+      }
+
       // Create a FormData object to send the file
       const formData = new FormData();
       formData.append('file', file);
-      // Note: We're not appending employeeId to FormData as we're sending it in the URL
-      // This is because the Vite plugin is using URL params instead of form data
 
       console.log('FormData created with file appended');
-      console.log('Will send employeeId in URL:', employeeId);
+      console.log('Will send unique number in URL:', uniqueNumber);
 
       try {
-        // Make the API call to the direct upload endpoint with employeeId as URL parameter
-        const response = await fetch(`/direct-upload?employeeId=${encodeURIComponent(employeeId)}`, {
+        // Make the API call to the frontend direct upload endpoint with uniqueNumber as URL parameter
+        const response = await fetch(`/direct-upload?employeeId=${encodeURIComponent(uniqueNumber)}`, {
           method: 'POST',
           body: formData,
         });
@@ -753,9 +781,9 @@ const ResumeUploadPage = () => {
         // Create a local URL for the file as fallback
         const fileUrl = URL.createObjectURL(file);
 
-        // Generate a unique filename with employee ID
+        // Generate a unique filename with the unique number
         const fileExtension = file.name.split('.').pop() || '';
-        const fileName = `employee_${employeeId}_${Date.now()}.${fileExtension}`;
+        const fileName = `employee_${uniqueNumber}.${fileExtension}`;
 
         // Create a success response with local file information
         const fallbackResponse = {

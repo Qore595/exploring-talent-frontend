@@ -8,9 +8,9 @@ const mkdir = promisify(fs.mkdir);
 const writeFile = promisify(fs.writeFile);
 const access = promisify(fs.access);
 
-// Base directory for resume uploads - using the absolute path specified by the user
+// Base directory for resume uploads - using relative path from server folder
 // Using the exact path specified by the user
-const UPLOAD_DIR = 'C:\\Users\\pitti\\Downloads\\QORE-main\\upload';
+const UPLOAD_DIR = path.join(__dirname, '..', '..', 'upload');
 
 // Log the upload directory for debugging
 console.log(`Resume upload directory set to: ${UPLOAD_DIR}`);

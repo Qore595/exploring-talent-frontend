@@ -25,7 +25,7 @@ router.get('/debug/list-files', (req, res) => {
   const path = require('path');
 
   // Use the same upload directory as defined in the controller
-  const UPLOAD_DIR = 'C:\\Users\\pitti\\Downloads\\QORE-main\\upload';
+  const UPLOAD_DIR = path.join(__dirname, '..', '..', 'upload');
 
   try {
     // Check if directory exists
